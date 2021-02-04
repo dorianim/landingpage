@@ -8,7 +8,7 @@ A landingpage for users with some links and options to change teir ldap password
 
 # Screenshots
 ### Landingpage
-![Landingpage](https://github.com/Itsblue/landingpage/blob/main/screenshots/landinpage.png)
+![Landingpage](https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png)
 ### Login (when ldap is enabled)
 ![Login](https://github.com/Itsblue/landingpage/blob/main/screenshots/login.png)
 ### Change password (when ldap is enabled)
