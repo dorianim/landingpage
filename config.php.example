@@ -31,6 +31,7 @@ $config['ldap'] = $ldapconfig;
 $links['Wiki']['href'] = "https://www.wikipedia.org/";
 $links['Wiki']['description'] = "This is Wikipedia";
 $links['Wiki']['image'] = "https://de.wikipedia.org/static/images/project-logos/dewiki.png";
+$links['Wiki']['limitToLdapGroup'] = "admin";
 
 $config['links'] = $links;
 
