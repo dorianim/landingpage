@@ -39,6 +39,7 @@ $translations['home']['menu']['changeEmailLabel'] = "E-Mail-Adresse ändern";
 $translations['home']['menu']['logoutLabel'] = "Abmelden";
 
 // - With LDAP
+// These rules are currently hard coded!
 $translations['passwordRules'][0] = "Das Passwort muss mindestens 7 Zeichen lang sein.";
 $translations['passwordRules'][1] = "Das Passwort muss mindestens eine Zahl enthalten.";
 $translations['passwordRules'][2] = "Das Passwort muss mindestens einen Klein- und einen Großbuchstaben enthalten.";
@@ -143,7 +144,7 @@ class MlmUserLandingPage
 
   private function _processRequest()
   {
-    if(!$this->_ldapConfig['enable']) {
+    if (!$this->_ldapConfig['enable']) {
       $this->_printHome();
       die();
     }
@@ -151,7 +152,7 @@ class MlmUserLandingPage
     if (!$this->_isUserAuthenticated() && $this->_path !== '/login' && $this->_path !== '/login/submit') {
       if ($this->_path != '/')
         $_SESSION['lastResult'] = 'loginRequired';
- 
+
       $this->_redirect("/login");
     }
 
@@ -443,8 +444,8 @@ class MlmUserLandingPage
         <div class="row py-lg-5">
           <div class="col-lg-6 col-md-8 mx-auto">
             <img class="mb-4" src="<?= $this->_globalConfig['mainIcon'] ?>" alt="" height="150">
-            <?php if($this->_ldapConfig['enable']): ?>
-            <h1 class="fw-light"><?= $this->_trId("home.hello"); ?> <?= $_SESSION['displayName'] ?></h1>
+            <?php if ($this->_ldapConfig['enable']) : ?>
+              <h1 class="fw-light"><?= $this->_trId("home.hello"); ?> <?= $_SESSION['displayName'] ?></h1>
             <?php endif; ?>
             <p class="lead text-muted"><?= $this->_trId("home.welcomeMessage"); ?></p>
           </div>
@@ -453,30 +454,30 @@ class MlmUserLandingPage
 
       <div class="album py-5 bg-light">
         <div class="container">
-        <?php if($this->_ldapConfig['enable']): ?>
-          <?php $this->_printPasswordAndEmailChangeNotification();
-          $this->_printResultAlert(); ?>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('links'); ?>" id="pills-links-tab" data-bs-toggle="pill" href="#pills-links" role="tab" aria-controls="pills-links" aria-selected="true"><?= $this->_trId("home.menu.linksLabel"); ?></a>
-              </li>
-              <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('changePassword'); ?>" id="pills-changePassword-tab" data-bs-toggle="pill" href="#pills-changePassword" role="tab" aria-controls="pills-changePassword" aria-selected="false"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
-              </li>
-              <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('changeEmail'); ?>" id="pills-changeEmail-tab" data-bs-toggle="pill" href="#pills-changeEmail" role="tab" aria-controls="pills-changeEmail" aria-selected="false"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
-              </li>
-            </ul>
-            <a href="logout" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></a>
-          </div>
-          <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade <?= $this->_getTabClasses('links', false); ?>" id="pills-links" role="tabpanel" aria-labelledby="pills-links-tab"><?php $this->_printLinks(); ?></div>
-            <div class="tab-pane fade <?= $this->_getTabClasses('changePassword', false); ?>" id="pills-changePassword" role="tabpanel" aria-labelledby="pills-changePassword-tab"> <?php $this->_printChangePasswordForm(); ?> </div>
-            <div class="tab-pane fade <?= $this->_getTabClasses('changeEmail', false); ?>" id="pills-changeEmail" role="tabpanel" aria-labelledby="pills-changeEmail-tab"> <?php $this->_printChangeEmailForm(); ?> </div>
-          </div>
-          <?php else: ?>
-          <?php $this->_printLinks(); ?>
+          <?php if ($this->_ldapConfig['enable']) : ?>
+            <?php $this->_printPasswordAndEmailChangeNotification();
+            $this->_printResultAlert(); ?>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+              <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link <?= $this->_getTabClasses('links'); ?>" id="pills-links-tab" data-bs-toggle="pill" href="#pills-links" role="tab" aria-controls="pills-links" aria-selected="true"><?= $this->_trId("home.menu.linksLabel"); ?></a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link <?= $this->_getTabClasses('changePassword'); ?>" id="pills-changePassword-tab" data-bs-toggle="pill" href="#pills-changePassword" role="tab" aria-controls="pills-changePassword" aria-selected="false"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link <?= $this->_getTabClasses('changeEmail'); ?>" id="pills-changeEmail-tab" data-bs-toggle="pill" href="#pills-changeEmail" role="tab" aria-controls="pills-changeEmail" aria-selected="false"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
+                </li>
+              </ul>
+              <a href="logout" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></a>
+            </div>
+            <div class="tab-content" id="pills-tabContent">
+              <div class="tab-pane fade <?= $this->_getTabClasses('links', false); ?>" id="pills-links" role="tabpanel" aria-labelledby="pills-links-tab"><?php $this->_printLinks(); ?></div>
+              <div class="tab-pane fade <?= $this->_getTabClasses('changePassword', false); ?>" id="pills-changePassword" role="tabpanel" aria-labelledby="pills-changePassword-tab"> <?php $this->_printChangePasswordForm(); ?> </div>
+              <div class="tab-pane fade <?= $this->_getTabClasses('changeEmail', false); ?>" id="pills-changeEmail" role="tabpanel" aria-labelledby="pills-changeEmail-tab"> <?php $this->_printChangeEmailForm(); ?> </div>
+            </div>
+          <?php else : ?>
+            <?php $this->_printLinks(); ?>
           <?php endif; ?>
         </div>
       </div>
@@ -519,7 +520,9 @@ class MlmUserLandingPage
     <h4 class="mb-4"><?= $this->_trId("links.title"); ?></h4>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
       <?php
-      foreach ($this->_links as $linkName => $linkMeta) : ?>
+      foreach ($this->_links as $linkName => $linkMeta) :
+        if ($this->_ldapConfig['enable'] && isset($linkMeta['limitToLdapGroup']) && !array_key_exists($linkMeta['limitToLdapGroup'], $_SESSION['ldapGroups']))
+          continue; ?>
         <div class="col">
           <div class="card shadow-sm">
             <img class="mb-4 ml-4 mr-4 mt-4" src="<?= $linkMeta['image'] ?>" alt="" height="150">
@@ -584,7 +587,7 @@ class MlmUserLandingPage
     </p>
     <?php if (!$_SESSION['firstEmailIsStillActive']) : ?>
       <p>
-      <?= $this->_trId("changeEmail.currentEmailLabel"); ?> <strong><?= $_SESSION['email']; ?></strong>
+        <?= $this->_trId("changeEmail.currentEmailLabel"); ?> <strong><?= $_SESSION['email']; ?></strong>
       </p>
     <?php endif; ?>
     <form action="changeEmail/submit" method="post">
@@ -605,8 +608,8 @@ class MlmUserLandingPage
     private function _bindToLdapAsAdmin()
     {
       $this->_ldapDs = ldap_connect($this->_ldapConfig['host'], $this->_ldapConfig['port']);
-      
-      if(!$this->_ldapDs) {
+
+      if (!$this->_ldapDs) {
         $_SESSION['lastResult'] = 'ldapConnectFailed';
         $this->_redirect('/');
       }
@@ -616,7 +619,7 @@ class MlmUserLandingPage
       ldap_set_option($this->_ldapDs, LDAP_OPT_NETWORK_TIMEOUT, 10);
 
       if (!$bindResult = ldap_bind($this->_ldapDs, $this->_ldapConfig['binduser'], $this->_ldapConfig['binduserPassword'])) {
-        if(ldap_error($this->_ldapDs) === "Can't contact LDAP server")
+        if (ldap_error($this->_ldapDs) === "Can't contact LDAP server")
           $_SESSION['lastResult'] = 'ldapConnectFailed';
         else
           $_SESSION['lastResult'] = 'bindingToLdapAdminFailed';
@@ -642,15 +645,25 @@ class MlmUserLandingPage
           $userDn = ldap_get_dn($this->_ldapDs, $userEntry);
 
           if (ldap_bind($this->_ldapDs, $userDn, $password)) {
+
             $_SESSION['loggedIn'] = true;
             $_SESSION['userDN'] = $userDn;
             $_SESSION['userName'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['usernameField'])[0];
             $_SESSION['displayName'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['displaynameField'])[0];
             $_SESSION['email'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['emailField'])[0];
-            $_SESSION['memberof'] = ldap_get_values($this->_ldapDs, $userEntry, "memberof");
             $_SESSION['lastResult'] = 'loginSuccess';
             $_SESSION['firstPasswordIsStillActive'] = ldap_get_values($this->_ldapDs, $userEntry, "sophomorixFirstPassword")[0] === $password;
             $_SESSION['firstEmailIsStillActive'] = $this->_stringEndsWith(ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['emailField'])[0], "linuxmuster.lan");
+
+            // calculate ldap groups (got this from: https://github.com/opnsense/core/blob/9679471d906631fe5f55efdda5b1174734278622/src/opnsense/mvc/app/library/OPNsense/Auth/LDAP.php#L477)
+            $ldap_groups = array();
+            foreach (ldap_get_values($this->_ldapDs, $userEntry, "memberof") as $member) {
+              if (stripos($member, "cn=") === 0) {
+                $ldap_groups[strtolower(explode(",", substr($member, 3))[0])] = $member;
+              }
+            }
+            $_SESSION['ldapGroups'] = $ldap_groups;
+
             return true;
           }
         }
