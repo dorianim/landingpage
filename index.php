@@ -93,7 +93,7 @@ class ItsblueUserLandingPage
     $this->_checkPagePermissions();
 
     if ($this->_stringEndsWith($this->_path, "submit")) {
-      if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $this->_redirect('/');
       }
 
@@ -106,27 +106,25 @@ class ItsblueUserLandingPage
           $this->_authenticator->logoutUser();
           $this->_redirect('/login');
           break;
-  
+
         case '/changePassword/submit':
           $this->_handlePasswordChangeSubmit();
           break;
-  
+
         case '/changeEmail/submit':
           $this->_handleEmailChangeSubmit();
           break;
-  
+
         case '/generateJitsiLink/submit':
           $this->_handleGenerateJitsiLinkSubmit();
           break;
-  
+
         default:
           $this->_redirect("/");
           break;
       }
-
-    }
-    else {
-      if($this->_path === 'logout')
+    } else {
+      if ($this->_path === 'logout')
         $this->_redirect('/');
 
       $this->_theme->printPage(str_replace("/", "", $this->_path));
@@ -136,13 +134,17 @@ class ItsblueUserLandingPage
     unset($_SESSION['lastResult']);
   }
 
-  private function _calculateBasepath() {
+  private function _calculateBasepath()
+  {
     if (in_array("mod_rewrite", apache_get_modules()))
-      $this->_basepath = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname($_SERVER['SCRIPT_FILENAME']));
+      $this->_basepath = str_replace(rtrim($_SERVER['DOCUMENT_ROOT'], "/ "), '', dirname($_SERVER['SCRIPT_FILENAME']));
     else
       $this->_basepath = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']);
 
-    if (strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false || $_SERVER['REQUEST_URI'] === $this->_basepath)
+    if ($this->_basepath === '')
+      $this->_basepath = '';
+
+    if ((strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false && $this->_basepath !== '') || $_SERVER['REQUEST_URI'] === $this->_basepath)
       $this->_path = "/";
     else
       $this->_path = str_replace($this->_basepath, "", $_SERVER['REQUEST_URI']);
@@ -163,16 +165,16 @@ class ItsblueUserLandingPage
     $_SESSION['auth']['permissions'][''] = false;
     $_SESSION['auth']['permissions']['login'] = $this->_loginEnabled && !$this->_isUserAuthenticated();
     $_SESSION['auth']['permissions']['logout'] = $this->_loginEnabled && $this->_isUserAuthenticated();
-    $_SESSION['auth']['permissions']['links'] = 
-      !$this->_loginEnabled 
+    $_SESSION['auth']['permissions']['links'] =
+      !$this->_loginEnabled
       || ($this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive'] || $_SESSION['auth']['firstEmailIsStillActive']));
-    
-    $_SESSION['auth']['permissions']['changePassword'] = 
-      $this->_isUserAuthenticated() 
+
+    $_SESSION['auth']['permissions']['changePassword'] =
+      $this->_isUserAuthenticated()
       && !(!$_SESSION['auth']['firstPasswordIsStillActive'] && $_SESSION['auth']['firstEmailIsStillActive']);
-    
+
     $_SESSION['auth']['permissions']['changeEmail'] = $this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive']);
-    
+
     $_SESSION['auth']['permissions']['generateJitsiLink'] =
       ($this->_isUserAuthenticated() || !$this->_loginEnabled)
       && $this->_jitsiConfig['enable']
@@ -212,19 +214,19 @@ class ItsblueUserLandingPage
       }
 
       die($this->_translations['results']['noPermissionToAnyPage']);
-    }
-    else if(!isset($_SESSION['auth']['permissions'][$page])) {
+    } else if (!isset($_SESSION['auth']['permissions'][$page])) {
       $this->_redirect('/');
     }
   }
 
-  private function _filterLinks($links) {
-    if(!$this->_loginEnabled)
+  private function _filterLinks($links)
+  {
+    if (!$this->_loginEnabled)
       return $links;
 
     $filteredLinks = [];
 
-    foreach($links as $linkName => $linkMeta) {
+    foreach ($links as $linkName => $linkMeta) {
       if (isset($linkMeta['limitToGroups']) && !$this->_isUserPartOfGroups($linkMeta['limitToGroups']))
         continue;
       else
@@ -318,7 +320,7 @@ class ItsblueUserLandingPage
     $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
     $jwt = $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
 
-    if(!$this->_stringEndsWith($this->_jitsiConfig['host'], '/'))
+    if (!$this->_stringEndsWith($this->_jitsiConfig['host'], '/'))
       $this->_jitsiConfig['host'] .= '/';
 
     $_SESSION['generateJitsiLinkLink'] = $this->_jitsiConfig['host'] . $_POST['room'] . "?jwt=" . $jwt;

@@ -10,12 +10,21 @@ This can be used at organizations where many different services are used (Rocket
 - Force users to change their email if they are still using the default email
 - Let users generate Jitsi links (can be restricted to certain LDAP groups)
 
-# Usage
-- Put all files in this repo into a webroot and rename config.php.example to config.php.
+# Installation
+- Put all files in this repo into a webroot.
+  `cd /var/www`
+  `git clone "https://github.com/Itsblue/landingpage"`
+- Rename config.php.example to config.php
+  `cp config.php.example config.php`
 - Make all necessary changes to config.php
 - If you don't want to have index.php in the URL, use Apache2 and make sure mod_rewrite is enabled and `AllowOverride All` is set in your Apache config
 - Enjoy ;)
 
+# Updating
+- To update, just go to your installation folder and pull
+  `cd /var/www/landingpage`
+  `git reset --hard`
+  `git pull`
 
 # Screenshots
 ### Landingpage
