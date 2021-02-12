@@ -63,7 +63,7 @@ $config['jitsi'] = $jitsiconfig;
 $links['Wiki']['href'] = "https://www.wikipedia.org/";
 $links['Wiki']['description'] = "This is Wikipedia";
 $links['Wiki']['image'] = "https://de.wikipedia.org/static/images/project-logos/dewiki.png";
-$links['Wiki']['limitToGroups'] = "";
+$links['Wiki']['limitToLdapGroup'] = "";
 
 $config['links'] = $links;
 

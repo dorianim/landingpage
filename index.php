@@ -47,7 +47,6 @@ $config['jitsi'] = $jitsiconfig;
 $config['links'] = [];
 
 // Translatable strings
-
 $translations = [];
 $config['translations'] = $translations;
 
