@@ -11,9 +11,9 @@ This can be used at organizations where many different services are used (Rocket
 - Let users generate Jitsi links (can be restricted to certain LDAP groups)
 
 # Usage
-- Put the index.php and config.php.example into a webroot and rename config.php.example to config.php.
+- Put all files in this repo into a webroot and rename config.php.example to config.php.
 - Make all necessary changes to config.php
-- If you don't want to have index.php in the URL, use Apache2 and make sure mod_rewrite is enabled
+- If you don't want to have index.php in the URL, use Apache2 and make sure mod_rewrite is enabled and `AllowOverride All` is set in your Apache config
 - Enjoy ;)
 
 
