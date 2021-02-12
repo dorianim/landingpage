@@ -3,7 +3,7 @@
  * This is the configuration file of the Itsblue ldandingpage
  * 
  * Error codes:
- * 0000: Connecting to ldap server failed
+ * 0000: Connecting to ldap server failed, this can also mean that the given host could not be parsed
  * 0001: Binding to ldap admin failed, make sure your bind DN and password is correct
  * 0002: Ldap search failed, please check the userFilter!
  * 0003: Error while changinp password, make sure you have ldapmodify installed
@@ -30,8 +30,8 @@ $config['theme'] = $themeConfig;
 
 // LDAP
 $ldapconfig['enable'] = false;
-$ldapconfig['host'] = '';
-$ldapconfig['port'] = '';
+$ldapconfig['host'] = 'ldap://<host>:<port>';
+$ldapconfig['useTls'] = false;
 $ldapconfig['basedn'] = '';
 $ldapconfig['binduser'] = '';
 $ldapconfig['binduserPassword'] = '';

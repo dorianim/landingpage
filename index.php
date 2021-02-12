@@ -21,7 +21,7 @@ $config['teheme'] = $themeConfig;
 // LDAP
 $ldapconfig['enable'] = false;
 $ldapconfig['host'] = '';
-$ldapconfig['port'] = '';
+$ldapconfig['useTls'] = false;
 $ldapconfig['basedn'] = '';
 $ldapconfig['binduser'] = '';
 $ldapconfig['binduserPassword'] = '';
@@ -334,12 +334,18 @@ class ItsblueUserLandingPage
 
   private function _isUserAuthenticated()
   {
+    if(!isset($_SESSION['auth']) || !isset($_SESSION['auth']['loggedIn']))
+      return false;
+      
     return $_SESSION['auth']['loggedIn'];
   }
 
   // checks if user is part of at least one of the given groups
   private function _isUserPartOfGroups($groups)
   {
+    if(!isset($_SESSION['auth']) || !isset($_SESSION['auth']['groups']))
+      return false;
+
     if (is_array($groups)) {
       if (count($groups) <= 0) {
         return true;

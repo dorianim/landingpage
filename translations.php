@@ -21,6 +21,7 @@ $translations['results']['ldapConnectFailed'] = str_replace("%ERR%", "0000", $tr
 $translations['results']['bindingToLdapAdminFailed'] = str_replace("%ERR%", "0001", $translations['results']['internalError']);
 $translations['results']['ldapSearchFailed'] = str_replace("%ERR%", "0002", $translations['results']['internalError']);
 $translations['results']['noPermissionToAnyPage'] = str_replace("%ERR%", "0005", $translations['results']['internalError']);
+$translations['results']['ldapTlsInitializationFailed'] = str_replace("%ERR%", "0006", $translations['results']['internalError']);
 $translations['results']['loginSuccess'] = "Erfolgreich angemeldet";
 $translations['results']['loginFailed'] = "Ungültige Zugangsdaten";
 $translations['results']['loginRequired'] = "Bitte zuerst anmelden!";

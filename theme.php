@@ -21,6 +21,7 @@ class LandingpageTheme
     $this->_resultLevels['loginFailed'] = "danger";
     $this->_resultLevels['ldapConnectFailed'] = "danger";
     $this->_resultLevels['ldapSearchFailed'] = "danger";
+    $this->_resultLevels['ldapTlsInitializationFailed'] = "danger";
     $this->_resultLevels['bindingToLdapAdminFailed'] = "danger";
     $this->_resultLevels['loginRequired'] = "warning";
     $this->_resultLevels['oldPasswordIsWrong'] = "danger";
