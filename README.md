@@ -35,8 +35,8 @@ For encrypted connections, there are two options:
   - your host will have to look like this: `ldap://<host>:389`
   - you will have to set useTls to true!
 
-In both cases your connection will be encryped and it will fail when there are certificate errors.
-By the way: You can get your SSL certificate by running:
+In both cases your connection will be encryped and it will fail when there are certificate errors.  
+By the way: You can get your SSL certificate by running:  
 `echo -n | openssl s_client -connect <host>:636 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ldapserver.pem`
 
 # Screenshots
