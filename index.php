@@ -147,7 +147,7 @@ class ItsblueUserLandingPage
     if ($this->_basepath === '')
       $this->_basepath = '';
 
-    if ((strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false && $this->_basepath !== '') || $_SERVER['REQUEST_URI'] === $this->_basepath)
+    if (($this->_basepath !== '' && strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false) || $_SERVER['REQUEST_URI'] === $this->_basepath)
       $this->_path = "/";
     else
       $this->_path = str_replace($this->_basepath, "", $_SERVER['REQUEST_URI']);
