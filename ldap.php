@@ -38,12 +38,6 @@ class LandingpageLdapAuthenticator
 
   private function _bindToLdapAsAdmin()
   {
-    /*if ($this->ldapURLType != "standard") {
-      ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_HARD);
-      ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, "/etc/ssl/cert.pem");
-    } else {
-      ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);
-    }*/
     if ($this->_ldapConfig['debug']) {
       ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
     }
