@@ -20,8 +20,11 @@ $config['teheme'] = $themeConfig;
 
 // LDAP
 $ldapconfig['enable'] = false;
+$ldapconfig['debug'] = false;
 $ldapconfig['host'] = '';
 $ldapconfig['useTls'] = false;
+$ldapconfig['ignoreTlsCertificateErrors'] = false;
+$ldapconfig['tlsCaCertificatePath'] = '';
 $ldapconfig['basedn'] = '';
 $ldapconfig['binduser'] = '';
 $ldapconfig['binduserPassword'] = '';

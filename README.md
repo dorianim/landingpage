@@ -26,6 +26,17 @@ This can be used at organizations where many different services are used (Rocket
   `git reset --hard`  
   `git pull`  
 
+# Using LDAP over startTLS or SSl
+For encrypted connections, there are two options:
+1. Use SSL:
+  - your host will have to look like this: `ldaps://<host>:636`
+  - you will have to set useTls to false!
+2. Use startTLS:
+  - your host will have to look like this: `ldap://<host>:389`
+  - you will have to set useTls to true!
+
+In both cases your connection will be encryped and it will fail when there are certificate errors.
+
 # Screenshots
 ### Landingpage
 ![Landingpage](https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png)

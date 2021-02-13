@@ -44,17 +44,18 @@ class LandingpageLdapAuthenticator
     } else {
       ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);
     }*/
-    ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
-    //ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);
-    
-    //ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_HARD);
-    //ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, "/usr/share/ca-certificates/lmn-test-ldapserver.crt");
+    if ($this->_ldapConfig['debug']) {
+      ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
+    }
+
+    if ($this->_ldapConfig['ignoreTlsCertificateErrors']) {
+      ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);
+    } else if (isset($this->_ldapConfig['tlsCaCertificatePath'])) {
+      ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_HARD);
+      ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $this->_ldapConfig['tlsCaCertificatePath']);
+    }
 
     $this->_ldapDs = ldap_connect($this->_ldapConfig['host']);
-
-    if ($this->_ldapConfig['useTls'] && ldap_start_tls($this->_ldapDs) === false) {
-      return $this->_result(false, "ldapTlsInitializationFailed");
-    }
 
     if (!$this->_ldapDs) {
       return $this->_result(false, 'ldapConnectFailed');
@@ -63,6 +64,10 @@ class LandingpageLdapAuthenticator
     ldap_set_option($this->_ldapDs, LDAP_OPT_PROTOCOL_VERSION, 3);
     ldap_set_option($this->_ldapDs, LDAP_OPT_REFERRALS, 0);
     ldap_set_option($this->_ldapDs, LDAP_OPT_NETWORK_TIMEOUT, 10);
+
+    if ($this->_ldapConfig['useTls'] && ldap_start_tls($this->_ldapDs) === false) {
+      return $this->_result(false, "ldapTlsInitializationFailed");
+    }
 
     if (!ldap_bind($this->_ldapDs, $this->_ldapConfig['binduser'], $this->_ldapConfig['binduserPassword'])) {
       if (ldap_error($this->_ldapDs) == "Can't contact LDAP server")
@@ -78,7 +83,7 @@ class LandingpageLdapAuthenticator
   {
     if (!$this->_bindToLdapAsAdmin())
       return false;
-    $username = $this->_sanitizeStringForLdap($username);
+    $username = ldap_escape($username, "",  LDAP_ESCAPE_FILTER);
     $filter = "(&(" . $this->_ldapConfig['userFilter'] . ")(" . $this->_ldapConfig['usernameField'] . "=$username))";
     if (($search = @ldap_search($this->_ldapDs, $this->_ldapConfig['basedn'], $filter))) {
       $number_returned = ldap_count_entries($this->_ldapDs, $search);
@@ -129,7 +134,10 @@ class LandingpageLdapAuthenticator
   {
 
     if (!$this->authenticateUser($_SESSION['auth']['userName'], $oldPassword, false)) {
-      return $this->_result(false, 'oldPasswordIsWrong');
+      if($this->_lastResult === "loginFailed") {
+        return $this->_result(false, 'oldPasswordIsWrong');
+      }
+      return false;
     }
 
     if ($newPassword === $oldPassword) {
@@ -146,58 +154,18 @@ class LandingpageLdapAuthenticator
       return $this->_result(false, 'passwordDoesNotContainALowercaseLetter');
     }
 
-    $newpw64 = $this->_adUnicodePwdValue($newPassword);
-    $userDn = $_SESSION['auth']['userDN'];
+    if(!$this->_bindToLdapAsAdmin()) {
+      return false;
+    }
 
-    $ldif =
-      <<<EOT
-      dn: $userDn
-      changetype: modify
-      replace: unicodePwd
-      unicodePwd:: $newpw64
-      EOT;
+    $entry = [];
+    $entry['unicodePwd'] = iconv("UTF-8", "UTF-16LE", '"' . $newPassword . '"');
 
-
-    // Build LDAP command string
-    $cmd = sprintf("/usr/bin/ldapmodify -H %s -D '%s' -x -w %s", "ldap://" . $this->_ldapConfig['host'], $this->_ldapConfig['binduser'], $this->_ldapConfig['binduserPassword']);
-
-    $descriptorspec = array(
-      0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-      1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
-      2 => array("pipe", "w") // stderr is a file to write to
-    );
-
-    $process = proc_open($cmd, $descriptorspec, $pipes);
-
-    if (is_resource($process)) {
-      // $pipes now looks like this:
-      // 0 => writeable handle connected to child stdin
-      // 1 => readable handle connected to child stdout
-
-      fwrite($pipes[0], "$ldif\n");
-      fclose($pipes[0]);
-
-      $proc_stdout = stream_get_contents($pipes[1]);
-      fclose($pipes[1]);
-      $proc_stderr = stream_get_contents($pipes[2]);
-      fclose($pipes[2]);
-
-      // It is important that you close any pipes before calling
-      // proc_close in order to avoid a deadlock
-      $return_value = proc_close($process);
-
-      if ($return_value > 0) {
-        //$message[] = "An error occurred while changing the password! Please provide the following info to your system administrator:";
-        //$message[] = "STDOUT: $proc_stdout";
-        //$message[] = "STDERR: $proc_stderr";
-        //$message[] = "EXIT: $return_value";
-
-        return $this->_result(false, 'passwordChangeLdapError');
-        return false;
-      } else {
-        $_SESSION['auth']['firstPasswordIsStillActive'] = false;
-        return $this->_result(true, 'passwordChangedSuccessfully');
-      }
+    if (!ldap_modify($this->_ldapDs, $_SESSION['auth']['userDN'], $entry)) {
+      return $this->_result(false, 'passwordChangeLdapError');
+    } else {
+      $_SESSION['auth']['firstPasswordIsStillActive'] = false;
+      return $this->_result(true, 'passwordChangedSuccessfully');
     }
   }
 
@@ -219,27 +187,4 @@ class LandingpageLdapAuthenticator
     }
   }
 
-  private function _adUnicodePwdValue($pw)
-  {
-    $newpw = '';
-    $pw = "\"" . $pw . "\"";
-    $len = strlen($pw);
-    for ($i = 0; $i < $len; $i++)
-      $newpw .= $pw[$i] . "\000";
-    $newpw = base64_encode($newpw);
-    return $newpw;
-  }
-
-  private function _sanitizeStringForLdap($string)
-  {
-    $sanitized = array(
-      '\\' => '\5c',
-      '*' => '\2a',
-      '(' => '\28',
-      ')' => '\29',
-      "\x00" => '\00'
-    );
-
-    return str_replace(array_keys($sanitized), array_values($sanitized), $string);
-  }
 }

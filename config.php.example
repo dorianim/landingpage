@@ -3,14 +3,17 @@
  * This is the configuration file of the Itsblue ldandingpage
  * 
  * Error codes:
- * 0000: Connecting to ldap server failed, this can also mean that the given host could not be parsed
+ * 0000: Connecting to ldap server failed, this can also mean that the given host could not be parsed. 
+ *       If you are using SSL this may also mean that your certificate could not be validated.
  * 0001: Binding to ldap admin failed, make sure your bind DN and password is correct
  * 0002: Ldap search failed, please check the userFilter!
- * 0003: Error while changinp password, make sure you have ldapmodify installed
+ * 0003: Error while changing password, make sure you have ldapmodify installed
  * 0004: Error while changing email
  * 0005: It was not possible to find any page the user has access to
+ * 0006: There was an error when tryin to establish a connection voer tls, please check your tls settings and apache log
+ *       Please note: This error will only fire when using startTLS, when using SSL, error 0000 will fire instead!
  * If any of these occurs, make sure you have php-ldap 
- * and ldapmodify installed on your system
+ * installed on your system and check your apache log!
  * 
  * PHP Version 7.4
  * 
@@ -30,8 +33,25 @@ $config['theme'] = $themeConfig;
 
 // LDAP
 $ldapconfig['enable'] = false;
+$ldapconfig['debug'] = false;
+
+// For encrypted connections, there are two options:
+// 1. Use SSL:
+//   - your host will have to look like this: ldaps://<host>:636
+//   - you will have to set useTls to false!
+// 2. Use startTLS:
+//   - your host will have to look like this: ldap://<host>:389
+//   - you will have to set useTls to true!
+
 $ldapconfig['host'] = 'ldap://<host>:<port>';
 $ldapconfig['useTls'] = false;
+
+// ignore invalid certificate errors
+$ldapconfig['ignoreTlsCertificateErrors'] = false;
+
+// force a specific CA certificate
+$ldapconfig['tlsCaCertificatePath'] = '';
+
 $ldapconfig['basedn'] = '';
 $ldapconfig['binduser'] = '';
 $ldapconfig['binduserPassword'] = '';
