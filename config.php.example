@@ -26,10 +26,20 @@
 
 defined('L_EXEC') or die();
 
-$config = [];
+// Server
+// This will hide index.php from all URLs. 
+// Make sure your Webserver is configured correctly, otherwise this will not work!
+// (see: https://github.com/Itsblue/landingpage#installation)
+$serverConfig['hideIndexPhp'] = false;
 
+// Theme
 $themeConfig['mainIcon'] = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/User_icon_1.svg/120px-User_icon_1.svg.png";
-$config['theme'] = $themeConfig;
+
+// Links
+$links['Wiki']['href'] = "https://www.wikipedia.org/";
+$links['Wiki']['description'] = "This is Wikipedia";
+$links['Wiki']['image'] = "https://de.wikipedia.org/static/images/project-logos/dewiki.png";
+$links['Wiki']['limitToLdapGroup'] = "";
 
 // LDAP
 $ldapconfig['enable'] = false;
@@ -68,8 +78,6 @@ $ldapconfig['firstPasswordField'] = 'sophomorixFirstPassword';
 // is used to force them to change it
 $ldapconfig['firstEmailPattern'] = '/.*\@linuxmuster\.lan$/';
 
-$config['ldap'] = $ldapconfig;
-
 // Jitsi
 $jitsiconfig['enable'] = false;
 $jitsiconfig['host'] = '';
@@ -77,14 +85,11 @@ $jitsiconfig['applicationSecret'] = '';
 $jitsiconfig['applicationId'] = '';
 $jitsiconfig['limitToGroups'] = [];
 
+// DO NOT CHANGE ANYTHING BELOW THIS LINE
+$config['server'] = $serverConfig;
+$config['theme'] = $themeConfig;
+$config['ldap'] = $ldapconfig;
 $config['jitsi'] = $jitsiconfig;
-
-// Links
-$links['Wiki']['href'] = "https://www.wikipedia.org/";
-$links['Wiki']['description'] = "This is Wikipedia";
-$links['Wiki']['image'] = "https://de.wikipedia.org/static/images/project-logos/dewiki.png";
-$links['Wiki']['limitToLdapGroup'] = "";
-
 $config['links'] = $links;
 
 ?>

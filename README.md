@@ -17,8 +17,56 @@ This can be used at organizations where many different services are used (Rocket
 - Rename config.php.example to config.php  
   `cp config.php.example config.php`
 - Make all necessary changes to config.php
-- If you don't want to have index.php in the URL, use Apache2 and make sure mod_rewrite is enabled and `AllowOverride All` is set in your Apache config
-- Enjoy ;)
+## Configure Webserver
+### Apache2
+```
+<VirtualHost *:80>
+  ServerName example.com
+  DocumentRoot /var/www/landingpage
+  ErrorLog ${APACHE_LOG_DIR}/error.log
+
+  <Directory "/var/www/landingpage">
+    AllowOverride All
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_URI} !^/index\.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule .* index.php [L]
+    RewriteRule ^(\.git)/(.*) error [F]
+  </Directory>
+
+</VirtualHost>
+```
+If you want to hide index.php from your URLs set `$serverConfig['hideIndexPhp'] = true;` in your config.php
+
+### Nginx
+```
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+  root /var/www/landingpage;
+  server_name _;
+
+  location ^~ / {
+    index  index.php;
+    try_files $uri $uri/ /index.php?$query_string;
+
+    location ~* "\.php$" {
+      # CHANGE TO YOUR NEEDS
+      fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+
+      fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+      try_files $fastcgi_script_name =404;
+      fastcgi_index index.php;
+      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+      include fastcgi_params;
+    }
+  }
+}
+```
+If you want to hide index.php from your URLs set `$serverConfig['hideIndexPhp'] = true;` in your config.php
 
 # Updating
 - To update, just go to your installation folder and pull  
@@ -35,7 +83,7 @@ For encrypted connections, there are two options:
   - your host will have to look like this: `ldap://<host>:389`
   - you will have to set useTls to true!
 
-In both cases your connection will be encryped and it will fail when there are certificate errors.  
+In both cases your connection will be encrypted, and it will fail when there are certificate errors.  
 By the way: You can get your SSL certificate by running:  
 `echo -n | openssl s_client -connect <host>:636 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ldapserver.pem`
 

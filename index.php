@@ -14,6 +14,11 @@
 
 $config = [];
 
+// Server
+$serverConfig['hideIndexPhp'] = false;
+$config['server'] = $serverConfig;
+
+// Theme
 $themeConfig['mainIcon'] = "/assets/user_black.png";
 
 $config['teheme'] = $themeConfig;
@@ -68,6 +73,7 @@ class ItsblueUserLandingPage
   private $_loginEnabled;
   private $_translations;
   private $_jitsiConfig;
+  private $_serverConfig;
 
   private $_authenticator;
   private $_theme;
@@ -77,6 +83,7 @@ class ItsblueUserLandingPage
     $this->_loginEnabled = $config['ldap']['enable'];
     $this->_translations = $config['translations'];
     $this->_jitsiConfig = $config['jitsi'];
+    $this->_serverConfig = $config['server'];
 
     session_start();
 
@@ -139,13 +146,12 @@ class ItsblueUserLandingPage
 
   private function _calculateBasepath()
   {
-    if (in_array("mod_rewrite", apache_get_modules()))
-      $this->_basepath = str_replace(rtrim($_SERVER['DOCUMENT_ROOT'], "/ "), '', dirname($_SERVER['SCRIPT_FILENAME']));
+    if($this->_serverConfig['hideIndexPhp'])
+      $this->_basepath = str_replace(basename($_SERVER["SCRIPT_NAME"]), '', $_SERVER['SCRIPT_NAME']);
     else
-      $this->_basepath = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']);
+      $this->_basepath = $_SERVER["SCRIPT_NAME"];
 
-    if ($this->_basepath === '')
-      $this->_basepath = '';
+    $this->_basepath = rtrim($this->_basepath, "/ ");
 
     if (($this->_basepath !== '' && strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false) || $_SERVER['REQUEST_URI'] === $this->_basepath)
       $this->_path = "/";
