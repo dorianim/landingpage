@@ -71,7 +71,7 @@ $translations['changeEmail']['disclaimer'] = "Deine E-Mail-Adresse wird verwende
 $translations['changeEmail']['currentEmailLabel'] = "Deine aktuelle E-Mail-Adresse ist:";
 $translations['changeEmail']['submitLabel'] = "E-Mail-Adresse ändern";
 
-$translations['generateJitsiLink']['disclaimer'] = "Generiere einen GenerateJitsiLink Link für Moderatorenrechte in einem bestimmten Raum";
+$translations['generateJitsiLink']['disclaimer'] = "Generiere einen Jitsi Link für Moderatorenrechte in einem bestimmten Raum";
 $translations['generateJitsiLink']['roomLabel'] = "Raumname";
 $translations['generateJitsiLink']['submitLabel'] = "Generieren";
 $translations['generateJitsiLink']['linkLabel'] = "Hier ist dein Link :)";
