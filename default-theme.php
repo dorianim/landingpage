@@ -67,6 +67,10 @@ class LandingpageTheme
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 
       <style>
+        :root {
+          --primary_500: 255, 0, 0;
+        }
+
         .mr-4 {
           margin-right: 1.5rem !important;
         }
@@ -128,7 +132,7 @@ class LandingpageTheme
     for (const form of forms) {
       var formButtons = form.getElementsByTagName("button");
       for (const button of formButtons) {
-        if(button.type === "submit") {
+        if (button.type === "submit") {
           form.addEventListener("submit", () => {
             console.log(button)
             button.innerHTML += ' <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>'
@@ -241,7 +245,7 @@ class LandingpageTheme
     {
       $this->_printHeader();
   ?>
-    <main class="bg-light" >
+    <main class="bg-light">
 
       <section class="py-5 text-center bg-white">
         <div class="row py-lg-5">
@@ -278,6 +282,8 @@ class LandingpageTheme
               <form action="logout/submit" method="post">
                 <button type="submit" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
               </form>
+            <?php elseif ($_SESSION['auth']['permissions']['login']) : ?>
+              <a class="btn btn-outline-secondary" href="login"><?= $this->_trId("home.menu.loginLabel"); ?></a>
             <?php endif; ?>
           </div>
           <div class="tab-content pt-3" id="pills-tabContent">

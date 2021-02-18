@@ -12,16 +12,25 @@
  * @link     github.com/itsblue/landingpage
  */
 
-$config = [];
-
 // Server
 $serverConfig['hideIndexPhp'] = false;
-$config['server'] = $serverConfig;
+$serverConfig['publicAccessToLinks'] = false;
+$serverConfig['theme'] = "default-theme";
+$serverConfig['language'] = "de-DE";
+
+// Customization
+$customizationConfig['organizationName'] = "ExampleOrg";
+$customizationConfig['fullOrganizationName'] = "Example Organization e.V.";
+$customizationConfig['supportEmailAddress'] = "support@example.com";
 
 // Theme
 $themeConfig['mainIcon'] = "/assets/user_black.png";
 
-$config['teheme'] = $themeConfig;
+// Links
+$links = [];
+
+// Translation overrides
+$translationOverrides = [];
 
 // LDAP
 $ldapconfig['enable'] = false;
@@ -35,7 +44,7 @@ $ldapconfig['binduser'] = '';
 $ldapconfig['binduserPassword'] = '';
 $ldapconfig['userFilter'] = '';
 $ldapconfig['usernameField'] = 'samaccountname';
-$ldapconfig['emailField'] = 'sophomorixCustom1';
+$ldapconfig['emailField'] = 'mail';
 $ldapconfig['displaynameField'] = 'displayname';
 $ldapconfig['firstPasswordField'] = 'sophomorixFirstPassword';
 $ldapconfig['firstEmailPattern'] = '/.*\@linuxmuster\.lan$/';
@@ -56,13 +65,22 @@ $config['links'] = [];
 
 // Translatable strings
 $translations = [];
-$config['translations'] = $translations;
 
 define('L_EXEC', true);
 
 require_once './config.php';
-require_once './translations.php';
-require_once './theme.php';
+$config['server'] = $serverConfig;
+$config['theme'] = $themeConfig;
+$config['ldap'] = $ldapconfig;
+$config['jitsi'] = $jitsiconfig;
+$config['links'] = $links;
+
+require_once './translations/' . $config['server']['language'] . '.php';
+
+// apply transltion overrides
+$config['translations'] = array_replace_recursive($translations, $translationOverrides);
+
+require_once './' . $config['server']['theme'] . '.php';
 require_once './ldap.php';
 
 class ItsblueUserLandingPage
@@ -91,7 +109,7 @@ class ItsblueUserLandingPage
 
     $config['theme']['loginEnabled'] = $this->_loginEnabled;
 
-    $this->_theme = new LandingpageTheme($config['theme'], $this->_filterLinks($config['links']), $config['translations']);
+    $this->_theme = new LandingpageTheme($config['theme'], $this->_filterLinks($config['links']), $this->_translations);
 
     $this->_calculateBasepath();
     $this->_processRequest();
@@ -114,7 +132,10 @@ class ItsblueUserLandingPage
 
         case '/logout/submit':
           $this->_authenticator->logoutUser();
-          $this->_redirect('/login');
+          if (!$this->_serverConfig['publicAccessToLinks'])
+            $this->_redirect('/login');
+          else
+            $this->_redirect('/');
           break;
 
         case '/changePassword/submit':
@@ -146,7 +167,7 @@ class ItsblueUserLandingPage
 
   private function _calculateBasepath()
   {
-    if($this->_serverConfig['hideIndexPhp'])
+    if ($this->_serverConfig['hideIndexPhp'])
       $this->_basepath = str_replace(basename($_SERVER["SCRIPT_NAME"]), '', $_SERVER['SCRIPT_NAME']);
     else
       $this->_basepath = $_SERVER["SCRIPT_NAME"];
@@ -176,7 +197,8 @@ class ItsblueUserLandingPage
     $_SESSION['auth']['permissions']['logout'] = $this->_loginEnabled && $this->_isUserAuthenticated();
     $_SESSION['auth']['permissions']['links'] =
       !$this->_loginEnabled
-      || ($this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive'] || $_SESSION['auth']['firstEmailIsStillActive']));
+      || ($this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive'] || $_SESSION['auth']['firstEmailIsStillActive']))
+      || (!$this->_isUserAuthenticated() && $this->_serverConfig['publicAccessToLinks']);
 
     $_SESSION['auth']['permissions']['changePassword'] =
       $this->_isUserAuthenticated()
@@ -343,16 +365,16 @@ class ItsblueUserLandingPage
 
   private function _isUserAuthenticated()
   {
-    if(!isset($_SESSION['auth']) || !isset($_SESSION['auth']['loggedIn']))
+    if (!isset($_SESSION['auth']) || !isset($_SESSION['auth']['loggedIn']))
       return false;
-      
+
     return $_SESSION['auth']['loggedIn'];
   }
 
   // checks if user is part of at least one of the given groups
   private function _isUserPartOfGroups($groups)
   {
-    if(!isset($_SESSION['auth']) || !isset($_SESSION['auth']['groups']))
+    if (!isset($_SESSION['auth']) || !isset($_SESSION['auth']['groups']))
       return false;
 
     if (is_array($groups)) {
