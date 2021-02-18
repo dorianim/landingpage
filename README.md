@@ -45,18 +45,14 @@ If you want to hide index.php from your URLs set `$serverConfig['hideIndexPhp'] 
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
-
   root /var/www/landingpage;
   server_name _;
-
   location ^~ / {
     index  index.php;
     try_files $uri $uri/ /index.php?$query_string;
-
     location ~* "\.php$" {
       # CHANGE TO YOUR NEEDS
       fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
-
       fastcgi_split_path_info ^(.+?\.php)(/.*)$;
       try_files $fastcgi_script_name =404;
       fastcgi_index index.php;
