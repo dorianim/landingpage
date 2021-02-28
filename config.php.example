@@ -59,6 +59,14 @@ $links['Wiki']['description'] = "This is Wikipedia";
 $links['Wiki']['image'] = "https://de.wikipedia.org/static/images/project-logos/dewiki.png";
 $links['Wiki']['limitToLdapGroup'] = "";
 
+// === Downloads ===
+// These files can be downloaded using https://<host>/dl/:id
+// Where :id is the id of the file (in this example it's "vpnProfile")
+// For enhanced security you can use a random or very long id and place the file outside of the webroot.
+$downloads['vpnProfile']['path'] = "/var/www/landingpage/assets/vpn.ovpn";
+$downloads['vpnProfile']['content-type'] = "application/x-openvpn-profile";
+$downloads['vpnProfile']['downloadName'] = "MakerLab Murnau VPN.ovpn";
+
 // === Translation overrides ===
 // Override translation values here
 // You may want to look into the translations file to see which are available

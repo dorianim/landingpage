@@ -74,6 +74,7 @@ $config['theme'] = $themeConfig;
 $config['ldap'] = $ldapconfig;
 $config['jitsi'] = $jitsiconfig;
 $config['links'] = $links;
+$config['downloads'] = $downloads;
 
 require_once './translations/' . $config['server']['language'] . '.php';
 
@@ -92,6 +93,7 @@ class ItsblueUserLandingPage
   private $_translations;
   private $_jitsiConfig;
   private $_serverConfig;
+  private $_downloads;
 
   private $_authenticator;
   private $_theme;
@@ -102,6 +104,7 @@ class ItsblueUserLandingPage
     $this->_translations = $config['translations'];
     $this->_jitsiConfig = $config['jitsi'];
     $this->_serverConfig = $config['server'];
+    $this->_downloads = $config['downloads'];
 
     session_start();
 
@@ -155,8 +158,18 @@ class ItsblueUserLandingPage
           break;
       }
     } else {
-      if ($this->_path === 'logout')
+      if ($this->_path === '/logout') {
         $this->_redirect('/');
+      }
+      else if($this->_stringStartsWith($this->_path, '/dl')) {
+        $fileId = explode('/', ltrim($this->_path, '/'), 2)[1];
+        
+        if($fileId === "" || !isset($fileId)) {
+          $this->_redirect('/');
+        }
+
+        $this->_sendFile($fileId);
+      }
 
       $this->_theme->printPage(str_replace("/", "", $this->_path));
       unset($_SESSION['generateJitsiLinkLink']);
@@ -193,6 +206,7 @@ class ItsblueUserLandingPage
   private function _updatePermissions()
   {
     $_SESSION['auth']['permissions'][''] = false;
+    $_SESSION['auth']['permissions']['dl'] = true;
     $_SESSION['auth']['permissions']['login'] = $this->_loginEnabled && !$this->_isUserAuthenticated();
     $_SESSION['auth']['permissions']['logout'] = $this->_loginEnabled && $this->_isUserAuthenticated();
     $_SESSION['auth']['permissions']['links'] =
@@ -357,6 +371,21 @@ class ItsblueUserLandingPage
     $_SESSION['generateJitsiLinkLink'] = $this->_jitsiConfig['host'] . $_POST['room'] . "?jwt=" . $jwt;
     $_SESSION['lastResult'] = 'generateJitsiLinkSuccessfull';
     $this->_redirect('/generateJitsiLink');
+  }
+
+  private function _sendFile($fileId) {
+    if(array_key_exists($fileId, $this->_downloads)) {
+      $filePath = $this->_downloads[$fileId]['path'];
+      header('Content-type: ' . $this->_downloads[$fileId]['content-type']);
+      header("Content-Disposition: attachment; filename=\"" . $this->_downloads[$fileId]['downloadName'] . "\"");
+      http_response_code(200);
+      readfile($filePath);
+    }
+    else {
+      http_response_code(404);
+    }
+
+    die();
   }
 
   // ----------------------------
