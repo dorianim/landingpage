@@ -83,6 +83,10 @@ class LandingpageTheme
           align-items: center;
           text-align: center;
         }
+
+        a:focus {
+          outline: none;
+        }
       </style>
 
       <title><?= $this->_trId("globals.title"); ?></title>
@@ -318,7 +322,13 @@ class LandingpageTheme
       <?php foreach ($this->_links as $linkName => $linkMeta) : ?>
         <div class="col">
           <div class="card shadow-sm">
-            <img class="mb-4 ml-4 mr-4 mt-4" src="<?= $linkMeta['image'] ?>" alt="" height="150">
+            <?php if (isset($linkMeta['href'])) : ?>
+              <a href=<?= $linkMeta['href'] ?> target="_blank">
+              <?php endif; ?>
+              <img class="mb-4 ml-4 mr-4 mt-4" src="<?= $linkMeta['image'] ?>" alt="" height="150">
+              <?php if (isset($linkMeta['href'])) : ?>
+              </a>
+            <?php endif; ?>
             </svg>
 
             <div class="card-body">
