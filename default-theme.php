@@ -84,6 +84,10 @@ class LandingpageTheme
           text-align: center;
         }
 
+        .card-footer {
+          width: 100%;
+        }
+
         a:focus {
           outline: none;
         }
@@ -321,26 +325,26 @@ class LandingpageTheme
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
       <?php foreach ($this->_links as $linkName => $linkMeta) : ?>
         <div class="col">
-          <div class="card shadow-sm">
+          <div class="card shadow-sm h-100">
             <?php if (isset($linkMeta['href'])) : ?>
               <a href=<?= $linkMeta['href'] ?> target="_blank">
               <?php endif; ?>
               <img class="mb-4 ml-4 mr-4 mt-4" src="<?= $linkMeta['image'] ?>" alt="" height="150">
+              <h2><?= $linkName ?></h2>
+              </img>
               <?php if (isset($linkMeta['href'])) : ?>
               </a>
             <?php endif; ?>
-            </svg>
 
-            <div class="card-body">
-              <?php
-              if (isset($linkMeta['href'])) {
-                echo "<h2><a class=\"link-primary\" href=\"" . $linkMeta['href'] . "\" target=\"_blank\">$linkName</a></h2>";
-              } else {
-                echo "<h2>$linkName</h2>";
-              }
-              ?>
+            <div class="card-body d-flex align-items-center">
               <p class="card-text"><?= $linkMeta['description'] ?></p>
             </div>
+
+            <?php if (isset($linkMeta['footer'])) : ?>
+              <div class="card-footer">
+                <?= $linkMeta['footer'] ?>
+              </div>
+            <?php endif; ?>
           </div>
         </div>
       <?php endforeach; ?>
