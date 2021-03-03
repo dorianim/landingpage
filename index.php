@@ -160,11 +160,10 @@ class ItsblueUserLandingPage
     } else {
       if ($this->_path === '/logout') {
         $this->_redirect('/');
-      }
-      else if($this->_stringStartsWith($this->_path, '/dl')) {
+      } else if ($this->_stringStartsWith($this->_path, '/dl')) {
         $fileId = explode('/', ltrim($this->_path, '/'), 2)[1];
-        
-        if($fileId === "" || !isset($fileId)) {
+
+        if ($fileId === "" || !isset($fileId)) {
           $this->_redirect('/');
         }
 
@@ -373,15 +372,15 @@ class ItsblueUserLandingPage
     $this->_redirect('/generateJitsiLink');
   }
 
-  private function _sendFile($fileId) {
-    if(array_key_exists($fileId, $this->_downloads)) {
+  private function _sendFile($fileId)
+  {
+    if (array_key_exists($fileId, $this->_downloads)) {
       $filePath = $this->_downloads[$fileId]['path'];
       header('Content-type: ' . $this->_downloads[$fileId]['content-type']);
       header("Content-Disposition: attachment; filename=\"" . $this->_downloads[$fileId]['downloadName'] . "\"");
       http_response_code(200);
       readfile($filePath);
-    }
-    else {
+    } else {
       http_response_code(404);
     }
 
@@ -394,10 +393,17 @@ class ItsblueUserLandingPage
 
   private function _isUserAuthenticated()
   {
-    if (!isset($_SESSION['auth']) || !isset($_SESSION['auth']['loggedIn']))
-      return false;
+    $authenticated =
+      isset($_SESSION['auth'])
+      && isset($_SESSION['auth']['loggedIn'])
+      && $_SESSION['auth']['loggedIn'] === true
+      && isset($_SESSION['auth']['userDN']);
 
-    return $_SESSION['auth']['loggedIn'];
+    if (!$authenticated && isset($_SESSION['auth'])) {
+      unset($_SESSION['auth']);
+    }
+
+    return $$authenticated;
   }
 
   // checks if user is part of at least one of the given groups
