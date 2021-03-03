@@ -128,7 +128,7 @@ class LandingpageLdapAuthenticator
   {
 
     if (!$this->authenticateUser($_SESSION['auth']['userName'], $oldPassword, false)) {
-      if($this->_lastResult === "loginFailed") {
+      if ($this->_lastResult === "loginFailed") {
         return $this->_result(false, 'oldPasswordIsWrong');
       }
       return false;
@@ -148,7 +148,7 @@ class LandingpageLdapAuthenticator
       return $this->_result(false, 'passwordDoesNotContainALowercaseLetter');
     }
 
-    if(!$this->_bindToLdapAsAdmin()) {
+    if (!$this->_bindToLdapAsAdmin()) {
       return false;
     }
 
@@ -165,20 +165,19 @@ class LandingpageLdapAuthenticator
 
   public function changeUserEmail($email)
   {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      return $this->_result(false, 'invalidEmailError');
+    }
     $this->_bindToLdapAsAdmin();
     $entry = [];
     $entry[$this->_ldapConfig['emailField']] = array($email);
     $result = ldap_mod_replace($this->_ldapDs, $_SESSION['auth']['userDN'], $entry);
     if ($result) {
-      // TODO: move out
       $_SESSION['auth']['firstEmailIsStillActive'] = false;
       $_SESSION['auth']['email'] = $email;
       return $this->_result(true, 'emailChangedSuccessfully');
-      return true;
     } else {
       return $this->_result(false, 'emailChangeLdapError');
-      return false;
     }
   }
-
 }

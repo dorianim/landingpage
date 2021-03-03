@@ -44,6 +44,7 @@ $translations['results']['newPasswordMustNotBeOldPassword'] = "Das neue Passwort
 $translations['results']['passwordChangedSuccessfully'] = "Dein Passwort wurde erfolgreich geändert.";
 $translations['results']['emailChangeLdapError'] = str_replace("%ERR%", "0004", $translations['results']['internalError']);
 $translations['results']['emailChangedSuccessfully'] = "Deine E-Mail-Adresse wurde erfolgreich geändert.";
+$translations['results']['invalidEmailError'] = "Die eingegeben E-Mail-Adresse ist ungültig.";
 $translations['results']['generateJitsiLinkSuccessfull'] = "Link erfolgreich generiert";
 $translations['results']['generateJitsiLinkRoomMustNotBeEmpty'] = "Der Raumname darf nicht leer sein";
 

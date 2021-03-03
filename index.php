@@ -204,22 +204,22 @@ class ItsblueUserLandingPage
 
   private function _updatePermissions()
   {
-    $_SESSION['auth']['permissions'][''] = false;
-    $_SESSION['auth']['permissions']['dl'] = true;
-    $_SESSION['auth']['permissions']['login'] = $this->_loginEnabled && !$this->_isUserAuthenticated();
-    $_SESSION['auth']['permissions']['logout'] = $this->_loginEnabled && $this->_isUserAuthenticated();
-    $_SESSION['auth']['permissions']['links'] =
+    $_SESSION['permissions'][''] = false;
+    $_SESSION['permissions']['dl'] = true;
+    $_SESSION['permissions']['login'] = $this->_loginEnabled && !$this->_isUserAuthenticated();
+    $_SESSION['permissions']['logout'] = $this->_loginEnabled && $this->_isUserAuthenticated();
+    $_SESSION['permissions']['links'] =
       !$this->_loginEnabled
       || ($this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive'] || $_SESSION['auth']['firstEmailIsStillActive']))
       || (!$this->_isUserAuthenticated() && $this->_serverConfig['publicAccessToLinks']);
 
-    $_SESSION['auth']['permissions']['changePassword'] =
+    $_SESSION['permissions']['changePassword'] =
       $this->_isUserAuthenticated()
       && !(!$_SESSION['auth']['firstPasswordIsStillActive'] && $_SESSION['auth']['firstEmailIsStillActive']);
 
-    $_SESSION['auth']['permissions']['changeEmail'] = $this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive']);
+    $_SESSION['permissions']['changeEmail'] = $this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive']);
 
-    $_SESSION['auth']['permissions']['generateJitsiLink'] =
+    $_SESSION['permissions']['generateJitsiLink'] =
       ($this->_isUserAuthenticated() || !$this->_loginEnabled)
       && $this->_jitsiConfig['enable']
       && $this->_isUserPartOfGroups($this->_jitsiConfig['limitToGroups'])
@@ -238,7 +238,9 @@ class ItsblueUserLandingPage
 
     $page = explode("/", $this->_path)[1];
 
-    if ($_SESSION['auth']['permissions'][$page] === false) {
+    if (!isset($_SESSION['permissions'][$page])) {
+      $this->_redirect('/');
+    } else if ($_SESSION['permissions'][$page] === false) {
       if (!$this->_isUserAuthenticated()) {
         $_SESSION['lastResult'] = 'loginRequired';
       } else if ($this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive'] || $_SESSION['auth']['firstEmailIsStillActive'])) {
@@ -253,13 +255,11 @@ class ItsblueUserLandingPage
 
       // redirect to the first page the user has access to
       foreach ($pageRedirectOnInsufficientPermissionsPriority as $page) {
-        if ($_SESSION['auth']['permissions'][$page])
+        if ($_SESSION['permissions'][$page])
           $this->_redirect("/" . $page);
       }
 
       die($this->_translations['results']['noPermissionToAnyPage']);
-    } else if (!isset($_SESSION['auth']['permissions'][$page])) {
-      $this->_redirect('/');
     }
   }
 
@@ -403,7 +403,7 @@ class ItsblueUserLandingPage
       unset($_SESSION['auth']);
     }
 
-    return $$authenticated;
+    return $authenticated;
   }
 
   // checks if user is part of at least one of the given groups

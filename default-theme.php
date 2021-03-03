@@ -37,6 +37,7 @@ class LandingpageTheme
     $this->_resultLevels['passwordChangedSuccessfully'] = 'success';
     $this->_resultLevels['emailChangedSuccessfully'] = 'success';
     $this->_resultLevels['emailChangeLdapError'] = 'danger';
+    $this->_resultLevels['invalidEmailError'] = 'danger';
     $this->_resultLevels['permissionDenied'] = 'danger';
     $this->_resultLevels['generateJitsiLinkRoomMustNotBeEmpty'] = 'danger';
     $this->_resultLevels['generateJitsiLinkSuccessfull'] = 'success';
@@ -286,11 +287,11 @@ class LandingpageTheme
                 <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" id="pills-changeEmail-tab" data-bs-toggle="pill" href="#pills-changeEmail" role="tab" aria-controls="pills-changeEmail" aria-selected="false"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
               </li>
             </ul>
-            <?php if ($_SESSION['auth']['permissions']['logout']) : ?>
+            <?php if ($_SESSION['permissions']['logout']) : ?>
               <form action="logout/submit" method="post">
                 <button type="submit" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
               </form>
-            <?php elseif ($_SESSION['auth']['permissions']['login']) : ?>
+            <?php elseif ($_SESSION['permissions']['login']) : ?>
               <a class="btn btn-outline-secondary" href="login"><?= $this->_trId("home.menu.loginLabel"); ?></a>
             <?php endif; ?>
           </div>
@@ -310,7 +311,7 @@ class LandingpageTheme
 
     private function _getTabClasses($tab, $page, $forMenu = true)
     {
-      if (!$_SESSION['auth']['permissions'][$tab])
+      if (!$_SESSION['permissions'][$tab])
         return 'd-none';
       else if ($page === $tab)
         return $forMenu ? 'active' : 'show active';
