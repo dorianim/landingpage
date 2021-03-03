@@ -58,6 +58,7 @@ $links['Wiki']['href'] = "https://www.wikipedia.org/";
 $links['Wiki']['description'] = "This is Wikipedia";
 $links['Wiki']['image'] = "https://de.wikipedia.org/static/images/project-logos/dewiki.png";
 $links['Wiki']['limitToLdapGroup'] = "";
+$links['Wiki']['footer'] = "This is a footer";
 
 // === Downloads ===
 // These files can be downloaded using https://<host>/dl/:id
