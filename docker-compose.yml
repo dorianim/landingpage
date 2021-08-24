@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  safemail:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+    environment:
+      SAFEMAIL_MAILDOMAIN: "safemail.example.com"
+    ports:
+      - "5080:80"
+    volumes:
+      - ./data:/data

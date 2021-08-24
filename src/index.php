@@ -68,7 +68,7 @@ $translations = [];
 
 define('L_EXEC', true);
 
-require_once './config.php';
+require_once '/data/config.php';
 $config['server'] = $serverConfig;
 $config['theme'] = $themeConfig;
 $config['ldap'] = $ldapconfig;
@@ -76,12 +76,18 @@ $config['jitsi'] = $jitsiconfig;
 $config['links'] = $links;
 $config['downloads'] = $downloads;
 
-require_once './translations/' . $config['server']['language'] . '.php';
+include './translations/' . $config['server']['language'] . '.php';
+if(file_exists('/data/translations/' . $config['server']['language'] . '.php'))
+  include '/data/translations/' . $config['server']['language'] . '.php';
 
 // apply transltion overrides
 $config['translations'] = array_replace_recursive($translations, $translationOverrides);
 
-require_once './' . $config['server']['theme'] . '.php';
+if(file_exists('/data/themes/' . $config['server']['theme'] . '.php'))
+  require_once '/data/themes/' . $config['server']['theme'] . '.php';
+else
+  require_once './themes/' . $config['server']['theme'] . '.php';
+
 require_once './ldap.php';
 
 class ItsblueUserLandingPage
