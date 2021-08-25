@@ -1,8 +1,26 @@
-# landingpage
+<h1 align="center">
+    Landingpage
+</h1>
+
+<p align="center">
+    <a href="https://github.com/Itsblue/landingpage/actions/workflows/docker.yml">
+        <img src="https://github.com/Itsblue/landingpage/actions/workflows/docker.yml/badge.svg" alt="Badge publish Docker image" />
+    </a>
+    <a href="https://raw.githubusercontent.com/ajenti/ajenti/master/LICENSE"> 
+        <img src="https://img.shields.io/github/license/linuxmuster/linuxmuster-webui7?label=License" alt="Badge License" />
+    </a>
+    <a href="https://ask.linuxmuster.net">
+        <img src="https://img.shields.io/discourse/users?logo=discourse&logoColor=white&server=https%3A%2F%2Fask.linuxmuster.net" alt="Community Forum"/>
+    </a>
+    <a href="https://crowdin.com/project/linuxmusternet">
+        <img src="https://badges.crowdin.net/linuxmusternet/localized.svg" />
+    </a>
+</p>
+
 A landingpage for users with some links and options to change teir ldap password and email.
 This can be used at organizations where many different services are used (Rocket.Chat, Nextcloud, ...) to provide users with a nice looking overview.
 
-# Features
+## Features
 - Give users an overview of all your services
 - Let users change their password
 - Force users to change their password if they are still using the default password
@@ -11,58 +29,31 @@ This can be used at organizations where many different services are used (Rocket
 - Let users generate Jitsi links (can be restricted to certain LDAP groups)
 
 # Installation
-- Put all files in this repo into a webroot.  
-  `cd /var/www`  
-  `git clone "https://github.com/Itsblue/landingpage"`
-- Rename config.php.example to config.php  
-  `cp config.php.example config.php`
-- Make all necessary changes to config.php
-## Configure Webserver
-### Apache2
+The official installation method is using Docker:
+1. Create a folder for installation:
+```bash
+mkdir /opt/landingpage && cd /opt/landingpage
 ```
-<VirtualHost *:80>
-  ServerName example.com
-  DocumentRoot /var/www/landingpage
-  ErrorLog ${APACHE_LOG_DIR}/error.log
-
-  <Directory "/var/www/landingpage">
-    AllowOverride All
-    RewriteEngine On
-
-    RewriteCond %{REQUEST_URI} !^/index\.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule .* index.php [L]
-    RewriteRule ^(\.git)/(.*) error [F]
-  </Directory>
-
-</VirtualHost>
+2. Create the file docker-compose.yml with this content:
 ```
-If you want to hide index.php from your URLs set `$serverConfig['hideIndexPhp'] = true;` in your config.php
-
-### Nginx
+version: "3.7"
+services:
+  landingpage:
+    image: itsblue/landingpage
+    restart: always
+    ports:
+      - "5080:80"
+    volumes:
+      - ./data:/data
 ```
-server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
-  root /var/www/landingpage;
-  server_name _;
-  location ^~ / {
-    index  index.php;
-    try_files $uri $uri/ /index.php?$query_string;
-    location ~* "\.php$" {
-      # CHANGE TO YOUR NEEDS
-      fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
-      fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-      try_files $fastcgi_script_name =404;
-      fastcgi_index index.php;
-      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-      include fastcgi_params;
-    }
-  }
-}
+3. Adjust the port (default `5080`) to your needs
+4. Start the landingpage:
 ```
-If you want to hide index.php from your URLs set `$serverConfig['hideIndexPhp'] = true;` in your config.php
+docker-compose up -d
+```
+5. Done! You can reach your landingpage on `localhost:5080`
+6. Adjust you `config.php` in `/opt/landingpage/data/config.php`
+7. [OPTIONAL] To setup ssl/https, please use a reverse proxy like nginx
 
 # Updating
 - To update, just go to your installation folder and pull  
@@ -84,11 +75,29 @@ By the way: You can get your SSL certificate by running:
 `echo -n | openssl s_client -connect <host>:636 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ldapserver.pem`
 
 # Screenshots
-### Landingpage
-![Landingpage](https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png)
-### Login (when ldap is enabled)
-![Login](https://github.com/Itsblue/landingpage/blob/main/screenshots/login.png)
-### Change password (when ldap is enabled)
-![Login](https://github.com/Itsblue/landingpage/blob/main/screenshots/changePassword.png)
-### Change email (when ldap is enabled)
-![Login](https://github.com/Itsblue/landingpage/blob/main/screenshots/changeEmail.png)
+<table align="center">
+    <tr>
+        <td align="center">
+            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png" alt="Screenshot landingpage" width="500px" />
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/login.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/login.png" alt="Screenshot login (LDAP)" width="500px" />
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/changePassword.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/changePassword.png" alt="Screenshot change password (LDAP)" width="500px" />
+            </a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/changeEmail.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/changeEmail.png" alt="Screenshot change email (LDAP)" width="500px" />
+            </a>
+        </td>
+    </tr>
+</table>
