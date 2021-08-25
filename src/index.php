@@ -13,7 +13,6 @@
  */
 
 // Server
-$serverConfig['hideIndexPhp'] = false;
 $serverConfig['publicAccessToLinks'] = false;
 $serverConfig['theme'] = "default-theme";
 $serverConfig['language'] = "de-DE";
@@ -185,11 +184,7 @@ class ItsblueUserLandingPage
 
   private function _calculateBasepath()
   {
-    if ($this->_serverConfig['hideIndexPhp'])
-      $this->_basepath = str_replace(basename($_SERVER["SCRIPT_NAME"]), '', $_SERVER['SCRIPT_NAME']);
-    else
-      $this->_basepath = $_SERVER["SCRIPT_NAME"];
-
+    $this->_basepath = str_replace(basename($_SERVER["SCRIPT_NAME"]), '', $_SERVER['SCRIPT_NAME']);
     $this->_basepath = rtrim($this->_basepath, "/ ");
 
     if (($this->_basepath !== '' && strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false) || $_SERVER['REQUEST_URI'] === $this->_basepath)

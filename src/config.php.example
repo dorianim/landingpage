@@ -1,9 +1,9 @@
 <?php
 /**
  * This is the configuration file of the Itsblue ldandingpage
- * 
+ *
  * Error codes:
- * 0000: Connecting to ldap server failed, this can also mean that the given host could not be parsed. 
+ * 0000: Connecting to ldap server failed, this can also mean that the given host could not be parsed.
  *       If you are using SSL this may also mean that your certificate could not be validated.
  * 0001: Binding to ldap admin failed, make sure your bind DN and password is correct
  * 0002: Ldap search failed, please check the userFilter!
@@ -12,11 +12,11 @@
  * 0005: It was not possible to find any page the user has access to
  * 0006: There was an error when tryin to establish a connection voer tls, please check your tls settings and apache log
  *       Please note: This error will only fire when using startTLS, when using SSL, error 0000 will fire instead!
- * If any of these occurs, make sure you have php-ldap 
+ * If any of these occurs, make sure you have php-ldap
  * installed on your system and check your apache log!
- * 
+ *
  * PHP Version 7.4
- * 
+ *
  * @category Utilities
  * @package  Landingpage
  * @author   Dorian Zedler <dorian@itsblue.de>
@@ -28,20 +28,15 @@ defined('L_EXEC') or die();
 
 // === Server ===
 
-// This will hide index.php from all URLs. 
-// Make sure your Webserver is configured correctly, otherwise this will not work!
-// (see: https://github.com/Itsblue/landingpage#installation)
-$serverConfig['hideIndexPhp'] = false;
-
 // Allow public access to links when the login is enabled
 $serverConfig['publicAccessToLinks'] = false;
 
-// Change to your custom theme. 
-// Has to be in the same dir as index.php and be named <themename>.php
+// Change to your custom theme.
+// Has to be in /data/themes and must be named <themename>.php
 $serverConfig['theme'] = "default-theme";
 
-// Change to your desired language. 
-// Has to be in ./translations and be named <language>.php
+// Change to your desired language.
+// Has to be in /data/translations and be named <language>.php
 $serverConfig['language'] = "de-DE";
 
 // === Customization ===
@@ -64,7 +59,7 @@ $links['Wiki']['footer'] = "This is a footer";
 // These files can be downloaded using https://<host>/dl/:id
 // Where :id is the id of the file (in this example it's "vpnProfile")
 // For enhanced security you can use a random or very long id and place the file outside of the webroot.
-$downloads['vpnProfile']['path'] = "/var/www/landingpage/assets/vpn.ovpn";
+$downloads['vpnProfile']['path'] = "/data/downloads/vpn.ovpn";
 $downloads['vpnProfile']['content-type'] = "application/x-openvpn-profile";
 $downloads['vpnProfile']['downloadName'] = "MakerLab Murnau VPN.ovpn";
 
@@ -97,7 +92,7 @@ $ldapconfig['useTls'] = false;
 $ldapconfig['ignoreTlsCertificateErrors'] = false;
 
 // force a specific CA certificate
-$ldapconfig['tlsCaCertificatePath'] = '';
+$ldapconfig['tlsCaCertificatePath'] = '/data/ldapserver.pem';
 
 $ldapconfig['basedn'] = '';
 $ldapconfig['binduser'] = '';
@@ -107,13 +102,13 @@ $ldapconfig['usernameField'] = 'samaccountname';
 $ldapconfig['emailField'] = 'mail';
 $ldapconfig['displaynameField'] = 'displayname';
 
-// A field containing the default password of the user 
+// A field containing the default password of the user
 // is used to force them to change it
 $ldapconfig['firstPasswordField'] = 'sophomorixFirstPassword';
 
 // A pattern to detect if a user still uses their default/placeholder email
 // is used to force them to change it
-$ldapconfig['firstEmailPattern'] = '/.*\@linuxmuster\.lan$/';
+$ldapconfig['firstEmailPattern'] = '/^$/';
 
 // === Jitsi ===
 $jitsiconfig['enable'] = false;
