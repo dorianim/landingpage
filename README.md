@@ -31,35 +31,44 @@ This can be used at organizations where many different services are used (Rocket
 # Installation
 The official installation method is using Docker:
 1. Create a folder for installation:
-```bash
-mkdir /opt/landingpage && cd /opt/landingpage
-```
+    ```bash
+    mkdir /opt/landingpage && cd /opt/landingpage
+    ```
 2. Create the file docker-compose.yml with this content:
-```
-version: "3.7"
-services:
-  landingpage:
-    image: itsblue/landingpage
-    restart: always
-    ports:
-      - "5080:80"
-    volumes:
-      - ./data:/data
-```
+    ```yaml
+    version: "3.7"
+    services:
+      landingpage:
+        image: itsblue/landingpage
+        restart: always
+        ports:
+          - "5080:80"
+        volumes:
+          - ./data:/data
+    ```
 3. Adjust the port (default `5080`) to your needs
 4. Start the landingpage:
-```
-docker-compose up -d
-```
+    ```bash
+    docker-compose up -d
+    ```
 5. Done! You can reach your landingpage on `localhost:5080`
 6. Adjust you `config.php` in `/opt/landingpage/data/config.php`
 7. [OPTIONAL] To setup ssl/https, please use a reverse proxy like nginx
 
 # Updating
-- To update, just go to your installation folder and pull  
-  `cd /var/www/landingpage`  
-  `git reset --hard`  
-  `git pull`  
+To update, just go to your installation folder and pull  
+```bash
+cd /opt/landingpage
+docker-compose pull
+docker-compose down && docker-compose up -d
+```
+  
+# Troubleshooting
+For troubleshooting, take a look at the logs:
+```bash
+cd /opt/landingpage
+docker-compose logs -f
+```
 
 # Using LDAP over startTLS or SSl
 For encrypted connections, there are two options:
