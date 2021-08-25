@@ -3,17 +3,15 @@
 </h1>
 
 <p align="center">
+    <a href="https://github.com/linuxmuster/linuxmuster-linbo-gui/releases/latest">
+        <img src="https://img.shields.io/github/v/release/linuxmuster/linuxmuster-linbo-gui?logo=github&logoColor=white" alt="GitHub release"/>
+    </a>
+    <a href="https://www.gnu.org/licenses/agpl-3.0" ><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" /></a>
     <a href="https://github.com/Itsblue/landingpage/actions/workflows/docker.yml">
         <img src="https://github.com/Itsblue/landingpage/actions/workflows/docker.yml/badge.svg" alt="Badge publish Docker image" />
     </a>
-    <a href="https://raw.githubusercontent.com/ajenti/ajenti/master/LICENSE"> 
-        <img src="https://img.shields.io/github/license/linuxmuster/linuxmuster-webui7?label=License" alt="Badge License" />
-    </a>
-    <a href="https://ask.linuxmuster.net">
-        <img src="https://img.shields.io/discourse/users?logo=discourse&logoColor=white&server=https%3A%2F%2Fask.linuxmuster.net" alt="Community Forum"/>
-    </a>
-    <a href="https://crowdin.com/project/linuxmusternet">
-        <img src="https://badges.crowdin.net/linuxmusternet/localized.svg" />
+    <a href="https://hub.docker.com/r/itsblue/landingpage">
+        <img src="https://img.shields.io/docker/pulls/itsblue/landingpage.svg" alt="Docker pulls" />
     </a>
 </p>
 
