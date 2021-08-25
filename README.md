@@ -86,25 +86,25 @@ By the way: You can get your SSL certificate by running:
 <table align="center">
     <tr>
         <td align="center">
-            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png">
-                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/landingpage.png" alt="Screenshot landingpage" width="500px" />
+            <a href="https://github.com/Itsblue/landingpage/blob/main/.github/media/landingpage.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/.github/media/landingpage.png" alt="Screenshot landingpage" width="500px" />
             </a>
         </td>
         <td align="center">
-            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/login.png">
-                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/login.png" alt="Screenshot login (LDAP)" width="500px" />
+            <a href="https://github.com/Itsblue/landingpage/blob/main/.github/media/login.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/.github/media/login.png" alt="Screenshot login (LDAP)" width="500px" />
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
-            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/changePassword.png">
-                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/changePassword.png" alt="Screenshot change password (LDAP)" width="500px" />
+            <a href="https://github.com/Itsblue/landingpage/blob/main/.github/media/changePassword.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/.github/media/changePassword.png" alt="Screenshot change password (LDAP)" width="500px" />
             </a>
         </td>
         <td align="center">
-            <a href="https://github.com/Itsblue/landingpage/blob/main/screenshots/changeEmail.png">
-                <img src="https://github.com/Itsblue/landingpage/blob/main/screenshots/changeEmail.png" alt="Screenshot change email (LDAP)" width="500px" />
+            <a href="https://github.com/Itsblue/landingpage/blob/main/.github/media/changeEmail.png">
+                <img src="https://github.com/Itsblue/landingpage/blob/main/.github/media/changeEmail.png" alt="Screenshot change email (LDAP)" width="500px" />
             </a>
         </td>
     </tr>
