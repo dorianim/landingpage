@@ -3,17 +3,17 @@
 </h1>
 
 <p align="center">
-    <a href="https://github.com/linuxmuster/linuxmuster-linbo-gui/releases/latest">
-        <img src="https://img.shields.io/github/v/release/linuxmuster/linuxmuster-linbo-gui?logo=github&logoColor=white" alt="GitHub release"/>
+    <a href="https://github.com/dorianim/landingpage/releases/latest">
+        <img src="https://img.shields.io/github/v/release/dorianim/landingpage?logo=github&logoColor=white" alt="GitHub release"/>
     </a>
     <a href="https://www.gnu.org/licenses/agpl-3.0">
         <img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" />
     </a>
-    <a href="https://github.com/Itsblue/landingpage/actions/workflows/release.yml">
-        <img src="https://github.com/Itsblue/landingpage/actions/workflows/release.yml/badge.svg" alt="Badge release image" />
+    <a href="https://github.com/dorianim/landingpage/actions/workflows/release.yml">
+        <img src="https://github.com/dorianim/landingpage/actions/workflows/release.yml/badge.svg" alt="Badge release image" />
     </a>
-    <a href="https://hub.docker.com/r/itsblue/landingpage">
-        <img src="https://img.shields.io/docker/pulls/itsblue/landingpage.svg" alt="Docker pulls" />
+    <a href="https://hub.docker.com/r/dorianim/landingpage">
+        <img src="https://img.shields.io/docker/pulls/dorianim/landingpage.svg" alt="Docker pulls" />
     </a>
 </p>
 
@@ -40,7 +40,7 @@ The official installation method is using Docker:
     version: "3.7"
     services:
       landingpage:
-        image: itsblue/landingpage
+        image: dorianim/landingpage
         restart: always
         ports:
           - "5080:80"
@@ -88,25 +88,25 @@ By the way: You can get your SSL certificate by running:
 <table align="center">
     <tr>
         <td align="center">
-            <a href="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/landingpage.png">
-                <img src="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/landingpage.png" alt="Screenshot landingpage" width="500px" />
+            <a href="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/landingpage.png">
+                <img src="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/landingpage.png" alt="Screenshot landingpage" width="500px" />
             </a>
         </td>
         <td align="center">
-            <a href="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/login.png">
-                <img src="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/login.png" alt="Screenshot login (LDAP)" width="500px" />
+            <a href="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/login.png">
+                <img src="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/login.png" alt="Screenshot login (LDAP)" width="500px" />
             </a>
         </td>
     </tr>
     <tr>
         <td align="center">
-            <a href="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/changePassword.png">
-                <img src="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/changePassword.png" alt="Screenshot change password (LDAP)" width="500px" />
+            <a href="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/changePassword.png">
+                <img src="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/changePassword.png" alt="Screenshot change password (LDAP)" width="500px" />
             </a>
         </td>
         <td align="center">
-            <a href="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/changeEmail.png">
-                <img src="https://raw.githubusercontent.com/Itsblue/landingpage/main/.github/media/changeEmail.png" alt="Screenshot change email (LDAP)" width="500px" />
+            <a href="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/changeEmail.png">
+                <img src="https://raw.githubusercontent.com/dorianim/landingpage/main/.github/media/changeEmail.png" alt="Screenshot change email (LDAP)" width="500px" />
             </a>
         </td>
     </tr>
