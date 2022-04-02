@@ -112,6 +112,7 @@ class ItsblueUserLandingPage
     $this->_downloads = $config['downloads'];
 
     session_start();
+    $this->_createCsrfTokenIfNotExists();
 
     $this->_authenticator = new LandingpageLdapAuthenticator($config['ldap']);
 
@@ -132,6 +133,8 @@ class ItsblueUserLandingPage
       if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $this->_redirect('/');
       }
+
+      $this->_checkCsrfToken();
 
       switch ($this->_path) {
         case '/login/submit':
@@ -279,6 +282,21 @@ class ItsblueUserLandingPage
     }
 
     return $filteredLinks;
+  }
+
+  private function _checkCsrfToken() 
+  {
+    if(!isset($_SESSION['csrfToken']) || $_SESSION['csrfToken'] !== $_POST['csrfToken']) {
+      $_SESSION['lastResult'] = "csrfTokenInvalid";
+      $this->_redirect(str_replace("/submit", "", $this->_path));
+    }
+  }
+
+  private function _createCsrfTokenIfNotExists()
+  {
+    if(!isset($_SESSION['csrfToken'])) {
+      $_SESSION['csrfToken'] = md5(uniqid(rand(), TRUE));
+    }
   }
 
   // -------------------
