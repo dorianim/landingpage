@@ -5,8 +5,10 @@ if [ $# -eq 0 ]; then
 
 	mkdir -p /data/{assets,themes,downloads}
 
-        if [ ! -e /data/config.php ]; then
-                cp /var/www/landingpage/config.php.example /data/config.php
+        # Only copy default config when no old php config exists
+        # to make sure we don't block the automated conversion
+        if [ ! -e /data/config.yaml ] && [ ! -e /data/config.php ]; then
+                cp /var/www/landingpage/config.example.yaml /data/config.yaml
         fi
 
 	rm -rf /var/www/landingpage/assets
