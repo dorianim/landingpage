@@ -8,4 +8,5 @@ services:
     ports:
       - "5080:80"
     volumes:
-      - ./data:/data
+      - ./data-dev:/data
+      - ./src:/var/www/landingpage

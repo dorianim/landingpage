@@ -41,6 +41,7 @@ class LandingpageTheme
     $this->_resultLevels['permissionDenied'] = 'danger';
     $this->_resultLevels['generateJitsiLinkRoomMustNotBeEmpty'] = 'danger';
     $this->_resultLevels['generateJitsiLinkSuccessfull'] = 'success';
+    $this->_resultLevels['csrfTokenInvalid'] = 'danger';
   }
 
   public function printPage($page)
@@ -237,6 +238,7 @@ class LandingpageTheme
           <input type="text" id="inputUsername" class="form-control" placeholder="<?= $this->_trId("globals.usernameLabel"); ?>" name="username" required autofocus>
           <label for="inputPassword" class="visually-hidden"><?= $this->_trId("globals.passwordLabel"); ?></label>
           <input type="password" id="inputPassword" class="form-control" placeholder="<?= $this->_trId("globals.passwordLabel"); ?>" name="password" required>
+          <?= $this->_csrfFormField() ?>
           <button class="w-100 btn btn-lg btn-primary" type="submit"><?= $this->_trId("login.submitLabel"); ?></button>
           <p class="mt-5 mb-3 text-muted"><?= $this->_trId("login.footnote"); ?></p>
         </form>
@@ -289,6 +291,7 @@ class LandingpageTheme
             </ul>
             <?php if ($_SESSION['permissions']['logout']) : ?>
               <form action="logout/submit" method="post">
+                <?= $this->_csrfFormField() ?>
                 <button type="submit" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
               </form>
             <?php elseif ($_SESSION['permissions']['login']) : ?>
@@ -379,6 +382,7 @@ class LandingpageTheme
         <label for="inputNewPasswordRepeat" class="form-label"><?= $this->_trId("changePassword.repeatNewPasswordLabel"); ?></label>
         <input name="newPasswordRepeat" type="password" class="form-control" id="inputNewPasswordRepeat" required>
       </div>
+      <?= $this->_csrfFormField() ?>
       <div class="col-12">
         <button type="submit" class="btn btn-primary"><?= $this->_trId("changePassword.submitLabel"); ?></button>
       </div>
@@ -402,6 +406,7 @@ class LandingpageTheme
         <label for="inputEmail" class="form-label"><?= $this->_trId("globals.emailAddress"); ?></label>
         <input name="email" type="email" class="form-control" id="inputEmail" required autofocus>
       </div>
+      <?= $this->_csrfFormField() ?>
       <button type="submit" class="btn btn-primary"><?= $this->_trId("changeEmail.submitLabel"); ?></button>
     </form>
   <?php
@@ -421,6 +426,7 @@ class LandingpageTheme
         <label for="inputRoom" class="form-label"><?= $this->_trId("generateJitsiLink.roomLabel"); ?></label>
         <input name="room" type="text" class="form-control" id="inputRoom" required autofocus>
       </div>
+      <?= $this->_csrfFormField() ?>
       <button type="submit" class="btn btn-primary"><?= $this->_trId("generateJitsiLink.submitLabel"); ?></button>
     </form>
 <?php
@@ -438,6 +444,10 @@ class LandingpageTheme
         $result = $result[$sub];
       }
       return $result;
+    }
+
+    private function _csrfFormField() {
+      return "<input type=\"hidden\" name=\"csrfToken\" value=\"" . $_SESSION['csrfToken'] . "\" />";
     }
   }
 

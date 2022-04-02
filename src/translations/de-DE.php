@@ -47,6 +47,7 @@ $translations['results']['emailChangedSuccessfully'] = "Deine E-Mail-Adresse wur
 $translations['results']['invalidEmailError'] = "Die eingegeben E-Mail-Adresse ist ungültig.";
 $translations['results']['generateJitsiLinkSuccessfull'] = "Link erfolgreich generiert";
 $translations['results']['generateJitsiLinkRoomMustNotBeEmpty'] = "Der Raumname darf nicht leer sein";
+$translations['results']['csrfTokenInvalid'] = "Der CSRF-Token ist ungültig";
 
 $translations['notifications']['changeFirstPassword'] = "Schritt 1 von 2: Du nutzt immernoch dein Erstpasswort. Dieses Passwort ist nicht sicher, bitte ändere es jetzt.";
 $translations['notifications']['changeFirstEmail'] = "Schritt 2 von 2: Deine E-Mail-Adresse ist noch noch nicht hinterlegt, bitte hinterlege sie jetzt.";
