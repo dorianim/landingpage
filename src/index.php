@@ -12,75 +12,22 @@
  * @link     github.com/itsblue/landingpage
  */
 
-// Server
-$serverConfig['publicAccessToLinks'] = false;
-$serverConfig['theme'] = "default-theme";
-$serverConfig['language'] = "de-DE";
-
-// Customization
-$customizationConfig['organizationName'] = "ExampleOrg";
-$customizationConfig['fullOrganizationName'] = "Example Organization e.V.";
-$customizationConfig['supportEmailAddress'] = "support@example.com";
-
-// Theme
-$themeConfig['mainIcon'] = "/assets/user_black.png";
-
-// Links
-$links = [];
-
-// Translation overrides
-$translationOverrides = [];
-
-// LDAP
-$ldapconfig['enable'] = false;
-$ldapconfig['debug'] = false;
-$ldapconfig['host'] = '';
-$ldapconfig['useTls'] = false;
-$ldapconfig['ignoreTlsCertificateErrors'] = false;
-$ldapconfig['tlsCaCertificatePath'] = '';
-$ldapconfig['basedn'] = '';
-$ldapconfig['binduser'] = '';
-$ldapconfig['binduserPassword'] = '';
-$ldapconfig['userFilter'] = '';
-$ldapconfig['usernameField'] = 'samaccountname';
-$ldapconfig['emailField'] = 'mail';
-$ldapconfig['displaynameField'] = 'displayname';
-$ldapconfig['firstPasswordField'] = 'sophomorixFirstPassword';
-$ldapconfig['firstEmailPattern'] = '/.*\@linuxmuster\.lan$/';
-
-$config['ldap'] = $ldapconfig;
-
-// Jitsi
-$jitsiconfig['enable'] = false;
-$jitsiconfig['host'] = '';
-$jitsiconfig['applicationSecret'] = '';
-$jitsiconfig['applicationId'] = '';
-$jitsiconfig['limitToGroups'] = [];
-
-$config['jitsi'] = $jitsiconfig;
-
-// Links
-$config['links'] = [];
-
 // Translatable strings
 $translations = [];
 
 define('L_EXEC', true);
+require_once './configManager.php';
 
-require_once '/data/config.php';
-$config['server'] = $serverConfig;
-$config['theme'] = $themeConfig;
-$config['ldap'] = $ldapconfig;
-$config['jitsi'] = $jitsiconfig;
-$config['links'] = $links;
-$config['downloads'] = $downloads;
+$configManager = new LandingpageConfigManager("/data/config.yaml");
+$configManager->migrate();
+$config = $configManager->load();
 
 include './translations/' . $config['server']['language'] . '.php';
 if(file_exists('/data/translations/' . $config['server']['language'] . '.php'))
   include '/data/translations/' . $config['server']['language'] . '.php';
 
 // apply transltion overrides
-$config['translations'] = array_replace_recursive($translations, $translationOverrides);
+$config['translations'] = array_replace_recursive($translations, $config['translationOverrides']);
 
 if(file_exists('/data/themes/' . $config['server']['theme'] . '.php'))
   require_once '/data/themes/' . $config['server']['theme'] . '.php';
@@ -275,7 +222,7 @@ class ItsblueUserLandingPage
     $filteredLinks = [];
 
     foreach ($links as $linkName => $linkMeta) {
-      if (isset($linkMeta['limitToGroups']) && !$this->_isUserPartOfGroups($linkMeta['limitToGroups']))
+      if (isset($linkMeta['limitToGroups']) && !empty($linkMeta['limitToGroups']) && !$this->_isUserPartOfGroups($linkMeta['limitToGroups']))
         continue;
       else
         $filteredLinks[$linkName] = $linkMeta;

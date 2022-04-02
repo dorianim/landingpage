@@ -93,6 +93,10 @@ class LandingpageTheme
         a:focus {
           outline: none;
         }
+
+        .row {
+          --bs-gutter-x: 0px;
+        }
       </style>
 
       <title><?= $this->_trId("globals.title"); ?></title>

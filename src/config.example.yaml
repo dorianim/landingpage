@@ -1,0 +1,102 @@
+# This is the configuration file of the landingpage
+
+---
+server:
+  # Allow public access to links when the login is enabled
+  publicAccessToLinks: false
+
+  # Change to your custom theme.
+  # Has to be in /data/themes and must be named <themename>.php
+  theme: default-theme
+
+  # Change to your custom language.
+  # Has to be in /data/translations and be named <language>.php
+  language: de-DE
+
+theme:
+  mainIcon: https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/User_icon_1.svg/120px-User_icon_1.svg.png
+
+ldap:
+  # Error codes:
+  # 0000: Connecting to ldap server failed, this can also mean that the given host could not be parsed.
+  #       If you are using SSL this may also mean that your certificate could not be validated.
+  # 0001: Binding to ldap admin failed, make sure your bind DN and password is correct
+  # 0002: Ldap search failed, please check the userFilter!
+  # 0003: Error while changing password, make sure you have ldapmodify installed
+  # 0004: Error while changing email
+  # 0005: It was not possible to find any page the user has access to
+  # 0006: There was an error when trying to establish a connection over tls, please check your tls settings and apache log
+  #       Please note: This error will only fire when using startTLS, when using SSL, error 0000 will fire instead!
+  # If any of these occurs, check the docker log!
+  enable: true
+  debug: false
+
+  # For encrypted connections, there are two options:
+  # 1. Use SSL:
+  #   - your host will have to look like this: ldaps://<host>:636
+  #   - you will have to set useTls to false!
+  # 2. Use startTLS:
+  #   - your host will have to look like this: ldap://<host>:389
+  #   - you will have to set useTls to true!
+  host: ldap://10.9.0.1:389
+  useTls: false
+
+  # ignore invalid certificate errors
+  ignoreTlsCertificateErrors: false
+
+  # force a specific CA certificate
+  tlsCaCertificatePath: /data/ldapserver.pem
+  basedn: DC=linuxmuster,DC=lan
+  binduser: LINUXMUSTER\global-admin
+  binduserPassword: Muster!
+  userFilter: sophomorixRole=student
+  usernameField: samaccountname
+  emailField: mail
+  displaynameField: displayname
+
+  # A field containing the default password of the user
+  # is used to force them to change it
+  firstPasswordField: sophomorixFirstPassword
+
+  # A pattern to detect if a user still uses their default/placeholder email
+  # is used to force them to change it
+  firstEmailPattern: /^$/
+
+jitsi:
+  enable: false
+  host: ""
+  applicationSecret: ""
+  applicationId: ""
+  limitToGroups: []
+
+links:
+  Wiki:
+    href: https://www.wikipedia.org/
+    description: This is Wikipedia
+    image: https://de.wikipedia.org/static/images/project-logos/dewiki.png
+    #limitToGroups: []
+    footer: This is a footer
+
+downloads:
+  # These files can be downloaded using https://<host>/dl/:id
+  # Where :id is the id of the file (in this example it's "someFile")
+  # For enhanced security you can use a random or very long id and place the file outside of the webroot.
+  someFile:
+    path: /data/downloads/someFile
+    content-type: application/x-openvpn-profile
+    downloadName: SomeFile.ovpn
+
+customization:
+  # Some individual information about your organization
+  organizationName: ExampleOrg
+  fullOrganizationName: Example Organization e.V.
+  supportEmailAddress: support@example.com
+
+translationOverrides:
+  # Override translation values here
+  # You may want to look into the translations file to see which are available
+  home:
+    welcomeMessage: Welcome to your ExampleOrg-account
+    menu:
+      linksLabel: ExampleOrg-services
+...
