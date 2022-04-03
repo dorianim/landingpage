@@ -93,6 +93,28 @@ class LandingpageTheme
         a:focus {
           outline: none;
         }
+
+        .navbar-light .navbar-nav .nav-link {
+          color: #0d6efd;
+          cursor: pointer;
+        }
+
+        .navbar-light .navbar-nav .nav-link:focus, .navbar-light .navbar-nav .nav-link:hover {
+          color: #0a58ca;
+        }
+
+        .navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .show > .nav-link {
+          color: #fff;
+        }
+
+        .navbar-nav .nav-link {
+          padding: .5rem 1rem;
+        }
+
+        .navbar > .container-fluid  {
+          padding-left: 0px;
+          padding-right: 0px;
+        }
       </style>
 
       <title><?= $this->_trId("globals.title"); ?></title>
@@ -274,36 +296,41 @@ class LandingpageTheme
         <div class="container pt-3 pb-3">
           <?php $this->_printPasswordAndEmailChangeNotification();
           $this->_printResultAlert(); ?>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 border-bottom flex-sm-row">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light rounded border-bottom pb-3 pt-0">
+              <div class="container-fluid">
+                <a id="navbar-brand" class="navbar-brand d-lg-none"><?= $page === "links" ? "":$this->_trId("home.menu." . $page . "Label") ?></a>
+                <button id="navbarButton" class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="navbar" class="navbar-collapse collapse">
+                  <ul class="navbar-nav nav nav-pills me-auto mb-2 mb-lg-0 mt-2 mt-lg-0" id="pills-tab" role="tablist">
+                    <? $this->_printLinkCategoryMenuItems($page); ?>
+                  </ul>
 
-            <ul class="nav nav-pills" id="pills-tab" role="tablist">
-              <? $this->_printLinkCategoryMenuItems($page); ?>
-            </ul>
-
-            <hr class="dropdown-divider">
-
-            <ul class="nav nav-pills ml-auto">
-              <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('generateJitsiLink', $page); ?>" href="generateJitsiLink"><?= $this->_trId("home.menu.generateJitsiLinkLabel"); ?></a>
-              </li>
-              <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('changePassword', $page); ?>" href="changePassword"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
-              </li>
-              <li class="nav-item pe-3" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" href="changeEmail"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
-              </li>
-              <li class="nav-item" role="presentation">
-              <?php if ($_SESSION['permissions']['logout']) : ?>
-                <form action="logout/submit" method="post">
-                  <?= $this->_csrfFormField() ?>
-                  <button type="submit" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
-                </form>
-              <?php elseif ($_SESSION['permissions']['login']) : ?>
-                <a class="btn btn-outline-secondary" href="login"><?= $this->_trId("home.menu.loginLabel"); ?></a>
-              <?php endif; ?>
-              </li>
-            </ul>
-          </div>
+                  <ul class="navbar-nav nav nav-pills">
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link <?= $this->_getTabClasses('generateJitsiLink', $page); ?>" href="generateJitsiLink"><?= $this->_trId("home.menu.generateJitsiLinkLabel"); ?></a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link <?= $this->_getTabClasses('changePassword', $page); ?>" href="changePassword"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
+                    </li>
+                    <li class="nav-item pe-lg-3" role="presentation">
+                      <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" href="changeEmail"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
+                    </li>
+                    <li class="nav-item mt-2 mt-lg-0" role="presentation">
+                    <?php if ($_SESSION['permissions']['logout']) : ?>
+                      <form action="logout/submit" method="post">
+                        <?= $this->_csrfFormField() ?>
+                        <button type="submit" class="btn btn-outline-secondary w-100"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
+                      </form>
+                    <?php elseif ($_SESSION['permissions']['login']) : ?>
+                      <a class="btn btn-outline-secondary w-100" href="login"><?= $this->_trId("home.menu.loginLabel"); ?></a>
+                    <?php endif; ?>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+          </nav>
           <div class="tab-content pt-3" id="pills-tabContent">
             <? $this->_printTabContent($page); ?>
           </div>
@@ -378,7 +405,7 @@ class LandingpageTheme
       foreach ($this->_links as $categoryName => $categoryLinks) :
         $categoryId = md5($categoryName); ?>
     <div class="tab-pane fade <?= $activeCategory === $categoryId ? "show active":"" ?>" id="pills-<?= $categoryId ?>" role="tabpanel" aria-labelledby="pills-<?= $categoryId ?>-tab">
-      <h4 class="mb-3 mt-3"><?= $categoryName ?></h4>
+      <h4 class="mb-3"><?= $categoryName ?></h4>
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
         <?php foreach ($categoryLinks as $linkName => $linkMeta) : ?>
           <div class="col">
@@ -409,8 +436,9 @@ class LandingpageTheme
     </div>
   <?php endforeach; ?>
   <script>
-    // Change url when tab is changed
+    // Change url and navbar-brand text when tab is changed
     var tabEls = document.querySelectorAll('a[data-bs-toggle="pill"]')
+    var navbarBrand = document.getElementById('navbar-brand')
     for(tabEl of tabEls) {
       tabEl.addEventListener('shown.bs.tab', function (event) {
         var url = new URL(document.URL);
@@ -420,7 +448,12 @@ class LandingpageTheme
           document.title,
           url.toString()
         )
+        navbarBrand.innerHTML = tabEl.innerHTML
       })
+      
+      if(tabEl.classList.contains("active")) {
+        navbarBrand.innerHTML = tabEl.innerHTML
+      }
     }
     </script>
   <?php
