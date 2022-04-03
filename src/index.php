@@ -18,8 +18,8 @@ $translations = [];
 define('L_EXEC', true);
 require_once './configManager.php';
 
+// Remember to also change path in cli.php
 $configManager = new LandingpageConfigManager("/data/config.yaml");
-$configManager->migrate();
 $config = $configManager->load();
 
 include './translations/' . $config['server']['language'] . '.php';
@@ -140,7 +140,7 @@ class ItsblueUserLandingPage
     if (($this->_basepath !== '' && strpos($_SERVER['REQUEST_URI'], $this->_basepath) === false) || $_SERVER['REQUEST_URI'] === $this->_basepath)
       $this->_path = "/";
     else
-      $this->_path = str_replace($this->_basepath, "", $_SERVER['REQUEST_URI']);
+      $this->_path = str_replace($this->_basepath, "", parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
   }
 
   private function _redirect($path)
@@ -221,11 +221,15 @@ class ItsblueUserLandingPage
 
     $filteredLinks = [];
 
-    foreach ($links as $linkName => $linkMeta) {
-      if (isset($linkMeta['limitToGroups']) && !empty($linkMeta['limitToGroups']) && !$this->_isUserPartOfGroups($linkMeta['limitToGroups']))
-        continue;
-      else
-        $filteredLinks[$linkName] = $linkMeta;
+    foreach ($links as $categoryName => $categoryMeta) {
+      foreach ($categoryMeta['links'] as $linkName => $linkMeta) {
+        if (isset($linkMeta['limitToGroups']) && !empty($linkMeta['limitToGroups']) && !$this->_isUserPartOfGroups($linkMeta['limitToGroups']))
+          continue;
+        else {
+          $filteredLinks[$categoryName]['title'] = $categoryMeta['title'];
+          $filteredLinks[$categoryName]['links'][$linkName] = $linkMeta;
+        }
+      }
     }
 
     return $filteredLinks;
