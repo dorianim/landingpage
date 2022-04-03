@@ -93,10 +93,6 @@ class LandingpageTheme
         a:focus {
           outline: none;
         }
-
-        .row {
-          --bs-gutter-x: 0px;
-        }
       </style>
 
       <title><?= $this->_trId("globals.title"); ?></title>
@@ -263,7 +259,7 @@ class LandingpageTheme
     <main class="bg-light">
 
       <section class="py-5 text-center bg-white">
-        <div class="row py-lg-5">
+        <div class="py-lg-5">
           <div class="col-lg-6 col-md-8 mx-auto">
             <img class="mb-4" src="<?= $this->_globalConfig['mainIcon'] ?>" alt="" height="150">
             <?php if ($this->_globalConfig['loginEnabled']) : ?>
@@ -278,35 +274,38 @@ class LandingpageTheme
         <div class="container pt-3 pb-3">
           <?php $this->_printPasswordAndEmailChangeNotification();
           $this->_printResultAlert(); ?>
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 border-bottom">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 border-bottom flex-sm-row">
+
             <ul class="nav nav-pills" id="pills-tab" role="tablist">
+              <? $this->_printLinkCategoryMenuItems($page); ?>
+            </ul>
+
+            <hr class="dropdown-divider">
+
+            <ul class="nav nav-pills ml-auto">
               <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('links', $page); ?>" id="pills-links-tab" data-bs-toggle="pill" href="#pills-links" role="tab" aria-controls="pills-links" aria-selected="true"><?= $this->_trId("home.menu.linksLabel"); ?></a>
+                <a class="nav-link <?= $this->_getTabClasses('generateJitsiLink', $page); ?>" href="generateJitsiLink"><?= $this->_trId("home.menu.generateJitsiLinkLabel"); ?></a>
               </li>
               <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('generateJitsiLink', $page); ?>" id="pills-generateJitsiLink-tab" data-bs-toggle="pill" href="#pills-generateJitsiLink" role="tab" aria-controls="pills-generateJitsiLink" aria-selected="false"><?= $this->_trId("home.menu.generateJitsiLinkLabel"); ?></a>
+                <a class="nav-link <?= $this->_getTabClasses('changePassword', $page); ?>" href="changePassword"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
+              </li>
+              <li class="nav-item pe-3" role="presentation">
+                <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" href="changeEmail"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
               </li>
               <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('changePassword', $page); ?>" id="pills-changePassword-tab" data-bs-toggle="pill" href="#pills-changePassword" role="tab" aria-controls="pills-changePassword" aria-selected="false"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
-              </li>
-              <li class="nav-item" role="presentation">
-                <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" id="pills-changeEmail-tab" data-bs-toggle="pill" href="#pills-changeEmail" role="tab" aria-controls="pills-changeEmail" aria-selected="false"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
+              <?php if ($_SESSION['permissions']['logout']) : ?>
+                <form action="logout/submit" method="post">
+                  <?= $this->_csrfFormField() ?>
+                  <button type="submit" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
+                </form>
+              <?php elseif ($_SESSION['permissions']['login']) : ?>
+                <a class="btn btn-outline-secondary" href="login"><?= $this->_trId("home.menu.loginLabel"); ?></a>
+              <?php endif; ?>
               </li>
             </ul>
-            <?php if ($_SESSION['permissions']['logout']) : ?>
-              <form action="logout/submit" method="post">
-                <?= $this->_csrfFormField() ?>
-                <button type="submit" class="btn btn-outline-secondary"><?= $this->_trId("home.menu.logoutLabel"); ?></button>
-              </form>
-            <?php elseif ($_SESSION['permissions']['login']) : ?>
-              <a class="btn btn-outline-secondary" href="login"><?= $this->_trId("home.menu.loginLabel"); ?></a>
-            <?php endif; ?>
           </div>
           <div class="tab-content pt-3" id="pills-tabContent">
-            <div class="tab-pane fade <?= $this->_getTabClasses('links', $page, false); ?>" id="pills-links" role="tabpanel" aria-labelledby="pills-links-tab"><?php $this->_printLinks(); ?></div>
-            <div class="tab-pane fade <?= $this->_getTabClasses('changePassword', $page, false); ?>" id="pills-changePassword" role="tabpanel" aria-labelledby="pills-changePassword-tab"> <?php $this->_printChangePasswordForm(); ?> </div>
-            <div class="tab-pane fade <?= $this->_getTabClasses('changeEmail', $page, false); ?>" id="pills-changeEmail" role="tabpanel" aria-labelledby="pills-changeEmail-tab"> <?php $this->_printChangeEmailForm(); ?> </div>
-            <div class="tab-pane fade <?= $this->_getTabClasses('generateJitsiLink', $page, false); ?>" id="pills-generateJitsiLink" role="tabpanel" aria-labelledby="pills-generateJitsiLink-tab"> <?php $this->_printGenerateJitsiLinkForm(); ?> </div>
+            <? $this->_printTabContent($page); ?>
           </div>
         </div>
       </div>
@@ -320,43 +319,110 @@ class LandingpageTheme
     {
       if (!$_SESSION['permissions'][$tab])
         return 'd-none';
-      else if ($page === $tab)
+      else if ($page === $tab && $page != 'links')
         return $forMenu ? 'active' : 'show active';
       else
         return '';
     }
 
+    private function _printLinkCategoryMenuItems($page) {
+      if (!$_SESSION['permissions']['links']) {
+        return;
+      } 
+
+      $activeCategory = md5($this->_links[0]);
+      if(isset($_GET["category"])) {
+        $activeCategory = $_GET["category"];
+      }
+      
+      foreach ($this->_links as $categoryName => $categoryLinks) :
+        $categoryId = md5($categoryName); ?>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link <?= ($activeCategory === $categoryId && $page === "links" ? "active":""); ?>" 
+            <?php if ($page === "links"): ?>
+            id="pills-<?= $categoryId ?>-tab" 
+            data-bs-toggle="pill" 
+            role="tab" 
+            data-bs-target="#pills-<?= $categoryId ?>"
+            aria-controls="pills-<?= $categoryId ?>" 
+            aria-selected="true"
+            linkCategoryId="<?= $categoryId ?>"
+            <?php else: ?>
+            href="links?category=<?= $categoryId; ?>" 
+            <?php endif; ?>
+            ><?= $categoryName; ?></a>
+        </li>
+      <?php endforeach;
+    }
+
+    private function _printTabContent($page) {
+      switch($page) {
+        case "links": $this->_printLinks(); break;
+        case "changePassword": $this->_printChangePasswordForm(); break;
+        case "changeEmail": $this->_printChangeEmailForm(); break;
+        case "generateJitsiLink": $this->_printGenerateJitsiLinkForm(); break;
+      }
+    }
+
     private function _printLinks()
     {
-  ?>
-    <h4 class="mb-3 mt-3"><?= $this->_trId("links.title"); ?></h4>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-      <?php foreach ($this->_links as $linkName => $linkMeta) : ?>
-        <div class="col">
-          <div class="card shadow-sm h-100">
-            <?php if (isset($linkMeta['href'])) : ?>
-              <a href=<?= $linkMeta['href'] ?> target="_blank">
-              <?php endif; ?>
-              <img class="mb-4 ml-4 mr-4 mt-4" src="<?= $linkMeta['image'] ?>" alt="" height="150">
-              <h2><?= $linkName ?></h2>
-              </img>
+      if (!$_SESSION['permissions']['links']) {
+        return;
+      } 
+
+      $activeCategory = md5($this->_links[0]);
+      if(isset($_GET["category"])) {
+        $activeCategory = $_GET["category"];
+      }
+
+      foreach ($this->_links as $categoryName => $categoryLinks) :
+        $categoryId = md5($categoryName); ?>
+    <div class="tab-pane fade <?= $activeCategory === $categoryId ? "show active":"" ?>" id="pills-<?= $categoryId ?>" role="tabpanel" aria-labelledby="pills-<?= $categoryId ?>-tab">
+      <h4 class="mb-3 mt-3"><?= $categoryName ?></h4>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        <?php foreach ($categoryLinks as $linkName => $linkMeta) : ?>
+          <div class="col">
+            <div class="card shadow-sm h-100">
               <?php if (isset($linkMeta['href'])) : ?>
-              </a>
-            <?php endif; ?>
+                <a href=<?= $linkMeta['href'] ?> target="_blank">
+                <?php endif; ?>
+                <img class="mb-4 ml-4 mr-4 mt-4" src="<?= $linkMeta['image'] ?>" alt="" height="150">
+                <h2><?= $linkName ?></h2>
+                </img>
+                <?php if (isset($linkMeta['href'])) : ?>
+                </a>
+              <?php endif; ?>
 
-            <div class="card-body d-flex align-items-center">
-              <p class="card-text"><?= $linkMeta['description'] ?></p>
-            </div>
-
-            <?php if (isset($linkMeta['footer'])) : ?>
-              <div class="card-footer">
-                <?= $linkMeta['footer'] ?>
+              <div class="card-body d-flex align-items-center">
+                <p class="card-text"><?= $linkMeta['description'] ?></p>
               </div>
-            <?php endif; ?>
+
+              <?php if (isset($linkMeta['footer'])) : ?>
+                <div class="card-footer">
+                  <?= $linkMeta['footer'] ?>
+                </div>
+              <?php endif; ?>
+            </div>
           </div>
-        </div>
-      <?php endforeach; ?>
+        <?php endforeach; ?>
+      </div>
     </div>
+  <?php endforeach; ?>
+  <script>
+    // Change url when tab is changed
+    var tabEls = document.querySelectorAll('a[data-bs-toggle="pill"]')
+    for(tabEl of tabEls) {
+      tabEl.addEventListener('shown.bs.tab', function (event) {
+        var url = new URL(document.URL);
+        url.searchParams.set('category', event.target.getAttribute("linkcategoryid"));
+        window.history.pushState(
+          "",
+          document.title,
+          url.toString()
+        )
+      })
+    }
+    </script>
   <?php
     }
 
