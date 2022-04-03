@@ -221,12 +221,14 @@ class ItsblueUserLandingPage
 
     $filteredLinks = [];
 
-    foreach ($links as $categoryName => $categoryLinks) {
-      foreach ($categoryLinks as $linkName => $linkMeta) {
+    foreach ($links as $categoryName => $categoryMeta) {
+      foreach ($categoryMeta['links'] as $linkName => $linkMeta) {
         if (isset($linkMeta['limitToGroups']) && !empty($linkMeta['limitToGroups']) && !$this->_isUserPartOfGroups($linkMeta['limitToGroups']))
           continue;
-        else
-          $filteredLinks[$categoryName][$linkName] = $linkMeta;
+        else {
+          $filteredLinks[$categoryName]['title'] = $categoryMeta['title'];
+          $filteredLinks[$categoryName]['links'][$linkName] = $linkMeta;
+        }
       }
     }
 

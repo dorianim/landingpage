@@ -352,17 +352,26 @@ class LandingpageTheme
         return '';
     }
 
+    private function _getActiveLinkCategory() {
+      $activeCategory = md5(array_key_first($this->_links));
+      if(isset($_GET["category"])) {
+        foreach ($this->_links as $categoryName => $categoryMeta) {
+          if(md5($categoryName) == $_GET["category"]) {
+            $activeCategory = $_GET["category"];
+          }
+        }
+      }
+      return $activeCategory;
+    }
+
     private function _printLinkCategoryMenuItems($page) {
       if (!$_SESSION['permissions']['links']) {
         return;
       } 
 
-      $activeCategory = md5($this->_links[0]);
-      if(isset($_GET["category"])) {
-        $activeCategory = $_GET["category"];
-      }
+      $activeCategory = $this->_getActiveLinkCategory();
       
-      foreach ($this->_links as $categoryName => $categoryLinks) :
+      foreach ($this->_links as $categoryName => $categoryMeta) :
         $categoryId = md5($categoryName); ?>
         <li class="nav-item" role="presentation">
           <a class="nav-link <?= ($activeCategory === $categoryId && $page === "links" ? "active":""); ?>" 
@@ -397,17 +406,17 @@ class LandingpageTheme
         return;
       } 
 
-      $activeCategory = md5($this->_links[0]);
-      if(isset($_GET["category"])) {
-        $activeCategory = $_GET["category"];
-      }
+      $activeCategory = $this->_getActiveLinkCategory();
 
-      foreach ($this->_links as $categoryName => $categoryLinks) :
+      foreach ($this->_links as $categoryName => $categoryMeta) :
         $categoryId = md5($categoryName); ?>
     <div class="tab-pane fade <?= $activeCategory === $categoryId ? "show active":"" ?>" id="pills-<?= $categoryId ?>" role="tabpanel" aria-labelledby="pills-<?= $categoryId ?>-tab">
-      <h4 class="mb-3"><?= $categoryName ?></h4>
+      <? if (isset($categoryMeta['title'])): ?>
+      <h4 class="mb-3"><?= $categoryMeta['title'] ?></h4>
+      <? endif; ?>
+      
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        <?php foreach ($categoryLinks as $linkName => $linkMeta) : ?>
+        <?php foreach ($categoryMeta['links'] as $linkName => $linkMeta) : ?>
           <div class="col">
             <div class="card shadow-sm h-100">
               <?php if (isset($linkMeta['href'])) : ?>

@@ -12,7 +12,7 @@ class LandingpageConfigManager {
         $config = $this->_loadDefaults();
 
         if(file_exists($this->_configFilePath)) {
-            $config = array_replace_recursive($config, yaml_parse_file($this->_configFilePath));
+            $config = array_replace_recursive($config, array_filter(yaml_parse_file($this->_configFilePath)));
         }
 
         return $config;
@@ -34,7 +34,7 @@ class LandingpageConfigManager {
             $config['downloads'] = $downloads;
             $config['customization'] = $customizationConfig;
             $config['translationOverrides'] = $translationOverrides;
-            if(!$this->store($config)) {
+            if(!$this->store(array_filter($config))) {
                 echo "Error writing new config. See https://github.com/dorianim/landingpage/issues/2";
                 return FALSE;
             }
@@ -48,8 +48,12 @@ class LandingpageConfigManager {
         $config = $this->load();
 
         // Convert uncategoriezed links
-        if($this->_getArrayDepth($config['links']) < 3) {
-            $config['links'] = array('Services' => $config['links']);
+        if($this->_getArrayDepth($config['links']) < 4) {
+            $config['links'] = array(
+                'Services' => array(
+                    "links" => $config['links']
+                )
+            );
             if(!$this->store($config)) {
                 echo "Error writing new config. See https://github.com/dorianim/landingpage/issues/4";
                 return FALSE;
