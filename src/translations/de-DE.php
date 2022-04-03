@@ -9,7 +9,6 @@ defined('L_EXEC') or die();
 
 $translations['home']['hello'] = "Hallo";
 $translations['home']['welcomeMessage'] = "Wilkommen bei deinem {$config['customization']['organizationName']}-Account - Ein Login für alles";
-$translations['home']['menu']['linksLabel'] = "{$config['customization']['organizationName']} Dienste";
 $translations['home']['menu']['changePasswordLabel'] = "Passwort ändern";
 $translations['home']['menu']['changeEmailLabel'] = "E-Mail-Adresse ändern";
 $translations['home']['menu']['generateJitsiLinkLabel'] = "Jitsi Link generieren";
@@ -60,8 +59,6 @@ $translations['globals']['emailAddress'] = "E-Mail-Adresse";
 $translations['login']['title'] = "Bitte anmelden";
 $translations['login']['submitLabel'] = "Anmelden";
 $translations['login']['footnote'] = "Login für Mitglieder des {$config['customization']['fullOrganizationName']}";
-
-$translations['links']['title'] = "Hier kannst du deinen {$config['customization']['organizationName']}-Account verwenden:";
 
 $translations['changePassword']['passwordRulesHeader'] = "Regeln für Passwörter:";
 $translations['changePassword']['currentPasswordLabel'] = "Aktuelles Passwort";
