@@ -17,12 +17,13 @@
     </a>
 </p>
 
-A landingpage for users with some links and options to change teir ldap password and email.
-This can be used at organizations where many different services are used (Rocket.Chat, Nextcloud, ...) to provide users with a nice looking overview.
+A landingpage for users with some links and options to change their ldap password and email.
+This can be used at organizations where many services are used (Rocket.Chat, Nextcloud, ...) to provide users with a nice looking overview.
 The application has been purpose-built for a fairly simple use-case. Due to limited time, I don't have much of a desire to widen the scope.
 
 ## Features
 - Give users an overview of all your services
+- Categorize your services
 - Let users change their password
 - Force users to change their password if they are still using the default password
 - Let users change their email
