@@ -18,8 +18,8 @@ $translations = [];
 define('L_EXEC', true);
 require_once './configManager.php';
 
+// Remember to also change path in cli.php
 $configManager = new LandingpageConfigManager("/data/config.yaml");
-$configManager->migrate();
 $config = $configManager->load();
 
 include './translations/' . $config['server']['language'] . '.php';
