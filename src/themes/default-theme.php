@@ -457,7 +457,7 @@ class LandingpageTheme
           document.title,
           url.toString()
         )
-        navbarBrand.innerHTML = tabEl.innerHTML
+        navbarBrand.innerHTML = event.target.innerHTML
       })
       
       if(tabEl.classList.contains("active")) {
