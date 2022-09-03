@@ -54,7 +54,7 @@ The official installation method is using Docker:
     docker-compose up -d
     ```
 5. Done! You can reach your landingpage on `localhost:5080`
-6. Adjust you `config.php` in `/opt/landingpage/data/config.php`
+6. Adjust you `config.yaml` in `/opt/landingpage/data/config.yaml`
 7. [OPTIONAL] To setup ssl/https, please use a reverse proxy like nginx
 
 # Updating
