@@ -6,6 +6,10 @@ RUN apt-get update && \
 RUN docker-php-ext-install mysqli pdo pdo_mysql gd zip ldap
 RUN pecl channel-update pecl.php.net
 RUN pecl install yaml && docker-php-ext-enable yaml
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php composer-setup.php && \
+    php -r "unlink('composer-setup.php');" && \
+    mv composer.phar /usr/local/bin/composer
 
 RUN ln -s /etc/apache2/mods-available/ssl.load  /etc/apache2/mods-enabled/ssl.load
 RUN ln -s /etc/apache2/mods-available/rewrite.load  /etc/apache2/mods-enabled/rewrite.load
@@ -17,5 +21,7 @@ COPY src /var/www/landingpage
 COPY conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 COPY docker-entrypoint.sh /entrypoint.sh
 COPY conf/php-log.ini $PHP_INI_DIR/conf.d/
+
+RUN cd /var/www/landingpage && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev
 
 ENTRYPOINT ["/entrypoint.sh"]

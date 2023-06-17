@@ -16,6 +16,9 @@
 $translations = [];
 
 define('L_EXEC', true);
+
+require __DIR__ . '/vendor/autoload.php';
+
 require_once './configManager.php';
 
 // Remember to also change path in cli.php
@@ -23,18 +26,19 @@ $configManager = new LandingpageConfigManager("/data/config.yaml");
 $config = $configManager->load();
 
 include './translations/' . $config['server']['language'] . '.php';
-if(file_exists('/data/translations/' . $config['server']['language'] . '.php'))
+if (file_exists('/data/translations/' . $config['server']['language'] . '.php'))
   include '/data/translations/' . $config['server']['language'] . '.php';
 
 // apply transltion overrides
 $config['translations'] = array_replace_recursive($translations, $config['translationOverrides']);
 
-if(file_exists('/data/themes/' . $config['server']['theme'] . '.php'))
+if (file_exists('/data/themes/' . $config['server']['theme'] . '.php'))
   require_once '/data/themes/' . $config['server']['theme'] . '.php';
 else
   require_once './themes/' . $config['server']['theme'] . '.php';
 
 require_once './ldap.php';
+require_once './openid.php';
 
 class ItsblueUserLandingPage
 {
@@ -47,7 +51,8 @@ class ItsblueUserLandingPage
   private $_serverConfig;
   private $_downloads;
 
-  private $_authenticator;
+  private $_ldap;
+  private $_openid;
   private $_theme;
 
   public function __construct($config)
@@ -61,7 +66,8 @@ class ItsblueUserLandingPage
     session_start();
     $this->_createCsrfTokenIfNotExists();
 
-    $this->_authenticator = new LandingpageLdapAuthenticator($config['ldap']);
+    $this->_ldap = new LandingpageLdapAuthenticator($config['ldap']);
+    $this->_openid = new LandingpageOpenid($config['openid'], $config['server']);
 
     $config['theme']['loginEnabled'] = $this->_loginEnabled;
 
@@ -81,6 +87,10 @@ class ItsblueUserLandingPage
         $this->_redirect('/');
       }
 
+      if ($this->_openid->enabled() && $this->_path === '/login/submit') {
+        $this->_handleOpenidLoginSubmit();
+      }
+
       $this->_checkCsrfToken();
 
       switch ($this->_path) {
@@ -89,7 +99,7 @@ class ItsblueUserLandingPage
           break;
 
         case '/logout/submit':
-          $this->_authenticator->logoutUser();
+          $this->_ldap->logoutUser();
           if (!$this->_serverConfig['publicAccessToLinks'])
             $this->_redirect('/login');
           else
@@ -123,6 +133,8 @@ class ItsblueUserLandingPage
         }
 
         $this->_sendFile($fileId);
+      } else if ($this->_openid->enabled() && $this->_path === '/login') {
+        $this->_openid->login();
       }
 
       $this->_theme->printPage(str_replace("/", "", $this->_path));
@@ -235,9 +247,9 @@ class ItsblueUserLandingPage
     return $filteredLinks;
   }
 
-  private function _checkCsrfToken() 
+  private function _checkCsrfToken()
   {
-    if(!isset($_SESSION['csrfToken']) || $_SESSION['csrfToken'] !== $_POST['csrfToken']) {
+    if (!isset($_SESSION['csrfToken']) || $_SESSION['csrfToken'] !== $_POST['csrfToken']) {
       $_SESSION['lastResult'] = "csrfTokenInvalid";
       $this->_redirect(str_replace("/submit", "", $this->_path));
     }
@@ -245,7 +257,7 @@ class ItsblueUserLandingPage
 
   private function _createCsrfTokenIfNotExists()
   {
-    if(!isset($_SESSION['csrfToken'])) {
+    if (!isset($_SESSION['csrfToken'])) {
       $_SESSION['csrfToken'] = md5(uniqid(rand(), TRUE));
     }
   }
@@ -254,14 +266,38 @@ class ItsblueUserLandingPage
   // - Submit handlers -
   // -------------------
 
+  private function _handleOpenidLoginSubmit()
+  {
+    $result = $this->_openid->callback();
+    if (!$result["success"]) {
+      $_SESSION['lastResult'] = 'loginFailed';
+      $this->_redirect('/login');
+    }
+
+    $username = $result["userinfo"]->preferred_username;
+    $user = $this->_ldap->findUser($username);
+
+    if (!$user['success']) {
+      $_SESSION['lastResult'] = 'loginFailed';
+      $this->_redirect('/login');
+    }
+
+    $userEntry = $user['userEntry'];
+
+    $firstPasswordIsStillActive = $this->_ldap->checkIfFirstPasswordIsStillActive($userEntry);
+    $this->_ldap->initSession($userEntry, $firstPasswordIsStillActive);
+    $_SESSION['lastResult'] = "loginSuccess";
+    $this->_redirect('/');
+  }
+
   private function _handleLoginSubmit()
   {
-    if ($this->_authenticator->authenticateUser($_POST['username'], $_POST['password'])) {
-      $_SESSION['lastResult'] = $this->_authenticator->lastResult();
+    if ($this->_ldap->authenticateUser($_POST['username'], $_POST['password'])) {
+      $_SESSION['lastResult'] = $this->_ldap->lastResult();
 
       $this->_redirect('/');
     } else {
-      $_SESSION['lastResult'] = $this->_authenticator->lastResult();
+      $_SESSION['lastResult'] = $this->_ldap->lastResult();
       $this->_redirect('/login');
     }
   }
@@ -277,8 +313,8 @@ class ItsblueUserLandingPage
       $this->_redirect('/changePassword');
     }
 
-    $this->_authenticator->changeUserPassword($oldPassword, $newPassword);
-    $_SESSION['lastResult'] = $this->_authenticator->lastResult();
+    $this->_ldap->changeUserPassword($oldPassword, $newPassword);
+    $_SESSION['lastResult'] = $this->_ldap->lastResult();
     $this->_redirect('/changePassword');
   }
 
@@ -289,11 +325,11 @@ class ItsblueUserLandingPage
 
     $redirectToHome = $_SESSION['auth']['firstEmailIsStillActive'];
 
-    if ($this->_authenticator->changeUserEmail($_POST['email']) && $redirectToHome) {
-      $_SESSION['lastResult'] = $this->_authenticator->lastResult();
+    if ($this->_ldap->changeUserEmail($_POST['email']) && $redirectToHome) {
+      $_SESSION['lastResult'] = $this->_ldap->lastResult();
       $this->_redirect('/');
     } else {
-      $_SESSION['lastResult'] = $this->_authenticator->lastResult();
+      $_SESSION['lastResult'] = $this->_ldap->lastResult();
       $this->_redirect('/changeEmail');
     }
   }

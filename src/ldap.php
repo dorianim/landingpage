@@ -73,50 +73,84 @@ class LandingpageLdapAuthenticator
     return $this->_result(true);
   }
 
-  public function authenticateUser($username, $password, $deauthenticateOnFailure = true)
+  public function findUser($username)
   {
     if (!$this->_bindToLdapAsAdmin())
-      return false;
-    $username = ldap_escape($username, "",  LDAP_ESCAPE_FILTER);
+      return array(
+        'success' => $this->_result(false, 'ldapBindFailed')
+      );
+
+    $username = ldap_escape($username, "", LDAP_ESCAPE_FILTER);
     $filter = "(&(" . $this->_ldapConfig['userFilter'] . ")(" . $this->_ldapConfig['usernameField'] . "=$username))";
-    if (($search = @ldap_search($this->_ldapDs, $this->_ldapConfig['basedn'], $filter))) {
-      $number_returned = ldap_count_entries($this->_ldapDs, $search);
+    $search = @ldap_search($this->_ldapDs, $this->_ldapConfig['basedn'], $filter);
 
-      if ($number_returned === 1) {
-        $userEntry = ldap_first_entry($this->_ldapDs, $search);
-        $userDn = ldap_get_dn($this->_ldapDs, $userEntry);
+    if (!$search || !ldap_count_entries($this->_ldapDs, $search) === 1)
+      return array(
+        'success' => $this->_result(false, 'ldapSearchFailed')
+      );
 
-        if (ldap_bind($this->_ldapDs, $userDn, $password)) {
 
-          $_SESSION['auth']['loggedIn'] = true;
-          $_SESSION['auth']['userDN'] = $userDn;
-          $_SESSION['auth']['userName'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['usernameField'])[0];
-          $_SESSION['auth']['displayName'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['displaynameField'])[0];
-          $_SESSION['auth']['email'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['emailField'])[0];
-          $_SESSION['auth']['firstPasswordIsStillActive'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['firstPasswordField'])[0] === $password;
-          $_SESSION['auth']['firstEmailIsStillActive'] = preg_match($this->_ldapConfig['firstEmailPattern'], $_SESSION['auth']['email']);
+    $userEntry = ldap_first_entry($this->_ldapDs, $search);
 
-          // calculate ldap groups (got this from: https://github.com/opnsense/core/blob/9679471d906631fe5f55efdda5b1174734278622/src/opnsense/mvc/app/library/OPNsense/Auth/LDAP.php#L477)
-          $ldap_groups = array();
-          foreach (ldap_get_values($this->_ldapDs, $userEntry, "memberof") as $member) {
-            if (stripos($member, "cn=") === 0) {
-              $ldap_groups[strtolower(explode(",", substr($member, 3))[0])] = $member;
-            }
-          }
+    return array(
+      'success' => $this->_result(true),
+      'userEntry' => $userEntry
+    );
+  }
 
-          $_SESSION['auth']['groups'] = $ldap_groups;
+  public function checkIfFirstPasswordIsStillActive($userEntry)
+  {
+    $firstPassword = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['firstPasswordField'])[0];
+    if (!isset($firstPassword))
+      return false;
 
-          return $this->_result(true, 'loginSuccess');
-        }
+    return ldap_bind($this->_ldapDs, ldap_get_dn($this->_ldapDs, $userEntry), $firstPassword);
+  }
+
+  public function initSession($userEntry, $firstPasswordIsStillActive)
+  {
+    $_SESSION['auth']['loggedIn'] = true;
+    $_SESSION['auth']['userDN'] = ldap_get_dn($this->_ldapDs, $userEntry);
+    $_SESSION['auth']['userName'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['usernameField'])[0];
+    $_SESSION['auth']['displayName'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['displaynameField'])[0];
+    $_SESSION['auth']['email'] = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['emailField'])[0];
+    $_SESSION['auth']['firstPasswordIsStillActive'] = $firstPasswordIsStillActive;
+    $_SESSION['auth']['firstEmailIsStillActive'] = preg_match($this->_ldapConfig['firstEmailPattern'], $_SESSION['auth']['email']);
+
+    // calculate ldap groups (got this from: https://github.com/opnsense/core/blob/9679471d906631fe5f55efdda5b1174734278622/src/opnsense/mvc/app/library/OPNsense/Auth/LDAP.php#L477)
+    $ldap_groups = array();
+    foreach (ldap_get_values($this->_ldapDs, $userEntry, "memberof") as $member) {
+      if (stripos($member, "cn=") === 0) {
+        $ldap_groups[strtolower(explode(",", substr($member, 3))[0])] = $member;
       }
-    } else {
-      return $this->_result(false, 'ldapSearchFailed');
     }
 
-    if ($deauthenticateOnFailure)
-      $this->logoutUser();
+    $_SESSION['auth']['groups'] = $ldap_groups;
+  }
 
-    $this->_result(false, 'loginFailed');
+  public function authenticateUser($username, $password, $deauthenticateOnFailure = true)
+  {
+    $user = $this->findUser($username);
+
+    if (!$user['success'])
+      return false;
+
+    $userEntry = $user['userEntry'];
+
+    $bindResult = ldap_bind($this->_ldapDs, ldap_get_dn($this->_ldapDs, $userEntry), $password);
+
+    if (!$bindResult) {
+      if ($deauthenticateOnFailure)
+        $this->logoutUser();
+
+      return $this->_result(false, 'loginFailed');
+    }
+
+    $firstPasswordIsStillActive = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['firstPasswordField'])[0] === $password;
+    $this->initSession($userEntry, $firstPasswordIsStillActive);
+
+    return $this->_result(true, 'loginSuccess');
+
   }
 
   public function logoutUser()
@@ -157,10 +191,14 @@ class LandingpageLdapAuthenticator
 
     if (!ldap_modify($this->_ldapDs, $_SESSION['auth']['userDN'], $entry)) {
       return $this->_result(false, 'passwordChangeLdapError');
-    } else {
-      $_SESSION['auth']['firstPasswordIsStillActive'] = false;
-      return $this->_result(true, 'passwordChangedSuccessfully');
     }
+
+    if (!ldap_modify($this->_ldapDs, $_SESSION['auth']['userDN'], $entry)) {
+      return $this->_result(false, 'passwordChangeLdapError');
+    }
+
+    $_SESSION['auth']['firstPasswordIsStillActive'] = false;
+    return $this->_result(true, 'passwordChangedSuccessfully');
   }
 
   public function changeUserEmail($email)

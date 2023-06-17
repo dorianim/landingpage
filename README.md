@@ -22,6 +22,7 @@ This can be used at organizations where many services are used (Rocket.Chat, Nex
 The application has been purpose-built for a fairly simple use-case. Due to limited time, I don't have much of a desire to widen the scope.
 
 ## Features
+
 - Give users an overview of all your services
 - Categorize your services
 - Let users change their password
@@ -29,63 +30,76 @@ The application has been purpose-built for a fairly simple use-case. Due to limi
 - Let users change their email
 - Force users to change their email if they are still using the default email
 - Let users generate Jitsi links (can be restricted to certain LDAP groups)
+- Use OpenID-Connect user initial user authentication
 
 # Installation
+
 The official installation method is using Docker:
+
 1. Create a folder for installation:
-    ```bash
-    mkdir /opt/landingpage && cd /opt/landingpage
-    ```
+   ```bash
+   mkdir /opt/landingpage && cd /opt/landingpage
+   ```
 2. Create the file docker-compose.yml with this content:
-    ```yaml
-    version: "3.7"
-    services:
-      landingpage:
-        image: dorianim/landingpage
-        restart: always
-        ports:
-          - "5080:80"
-        volumes:
-          - ./data:/data
-    ```
+   ```yaml
+   version: "3.7"
+   services:
+     landingpage:
+       image: dorianim/landingpage
+       restart: always
+       ports:
+         - "5080:80"
+       volumes:
+         - ./data:/data
+   ```
 3. Adjust the port (default `5080`) to your needs
 4. Start the landingpage:
-    ```bash
-    docker-compose up -d
-    ```
+   ```bash
+   docker-compose up -d
+   ```
 5. Done! You can reach your landingpage on `localhost:5080`
 6. Adjust you `config.yaml` in `/opt/landingpage/data/config.yaml`
 7. [OPTIONAL] To setup ssl/https, please use a reverse proxy like nginx
 
 # Updating
-To update, just go to your installation folder and pull  
+
+To update, just go to your installation folder and pull
+
 ```bash
 cd /opt/landingpage
 docker-compose pull
 docker-compose down && docker-compose up -d
 ```
-  
+
 # Troubleshooting
+
 For troubleshooting, take a look at the logs:
+
 ```bash
 cd /opt/landingpage
 docker-compose logs -f
 ```
 
 # Using LDAP over startTLS or SSl
+
 For encrypted connections, there are two options:
+
 1. Use SSL:
-  - your host will have to look like this: `ldaps://<host>:636`
-  - you will have to set useTls to false!
+
+- your host will have to look like this: `ldaps://<host>:636`
+- you will have to set useTls to false!
+
 2. Use startTLS:
-  - your host will have to look like this: `ldap://<host>:389`
-  - you will have to set useTls to true!
+
+- your host will have to look like this: `ldap://<host>:389`
+- you will have to set useTls to true!
 
 In both cases your connection will be encrypted, and it will fail when there are certificate errors.  
 By the way: You can get your SSL certificate by running:  
 `echo -n | openssl s_client -connect <host>:636 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > ldapserver.pem`
 
 # Screenshots
+
 <table align="center">
     <tr>
         <td align="center">

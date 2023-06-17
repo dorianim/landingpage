@@ -1,5 +1,4 @@
 # This is the configuration file of the landingpage
-
 ---
 server:
   # Allow public access to links when the login is enabled
@@ -12,6 +11,9 @@ server:
   # Change to your custom language.
   # Has to be in /data/translations and be named <language>.php
   language: de-DE
+
+  # The external url of the landingpage
+  externalUrl: https://landingpage.some.domain
 
 theme:
   mainIcon: https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/User_icon_1.svg/120px-User_icon_1.svg.png
@@ -61,6 +63,18 @@ ldap:
   # A pattern to detect if a user still uses their default/placeholder email
   # is used to force them to change it
   firstEmailPattern: /^$/
+
+openid:
+  # Openid can be used for initial authentication.
+  # However, it only fully works in combination with LDAP, because it cannot be used
+  # to check if the users firstPassword is still set or update the users credentials.
+  # the callback url is: /login/submit
+  enable: false
+  clientId: landingpage
+  clientSecret: someSecretSectet
+
+  # has to have an endpoint `/.well-known/openid-configuration`
+  issuer: https://some-issuer
 
 jitsi:
   enable: false
@@ -112,4 +126,3 @@ translationOverrides:
     welcomeMessage: Welcome to your ExampleOrg-account
     menu:
       linksLabel: ExampleOrg-services
-...
