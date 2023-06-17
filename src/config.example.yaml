@@ -69,6 +69,7 @@ openid:
   # However, it only fully works in combination with LDAP, because it cannot be used
   # to check if the users firstPassword is still set or update the users credentials.
   # the callback url is: /login/submit
+  # the logout callback url is: /
   enable: false
   clientId: landingpage
   clientSecret: someSecretSectet

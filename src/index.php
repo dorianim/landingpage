@@ -99,11 +99,7 @@ class ItsblueUserLandingPage
           break;
 
         case '/logout/submit':
-          $this->_ldap->logoutUser();
-          if (!$this->_serverConfig['publicAccessToLinks'])
-            $this->_redirect('/login');
-          else
-            $this->_redirect('/');
+          $this->_handleLogoutSubmit();
           break;
 
         case '/changePassword/submit':
@@ -300,6 +296,19 @@ class ItsblueUserLandingPage
       $_SESSION['lastResult'] = $this->_ldap->lastResult();
       $this->_redirect('/login');
     }
+  }
+
+  private function _handleLogoutSubmit()
+  {
+    $this->_ldap->logoutUser();
+
+    if ($this->_openid->enabled())
+      $this->_openid->logout();
+
+    if (!$this->_serverConfig['publicAccessToLinks'])
+      $this->_redirect('/login');
+    else
+      $this->_redirect('/');
   }
 
   private function _handlePasswordChangeSubmit()

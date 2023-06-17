@@ -62,6 +62,11 @@ class LandingpageOpenid
         $this->_client->authenticate();
     }
 
+    public function logout()
+    {
+        $this->_client->signOut($_SESSION['openid']['idToken'], $this->_serverConfig['externalUrl'] . '/');
+    }
+
     public function callback()
     {
         try {
@@ -72,6 +77,7 @@ class LandingpageOpenid
             );
         }
         $userinfo = $this->_client->requestUserInfo();
+        $_SESSION['openid']['idToken'] = $this->_client->getIdToken();
         return array(
             'success' => true,
             'userinfo' => $userinfo
