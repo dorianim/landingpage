@@ -28,7 +28,7 @@ RUN cd /var/www && \
     mkdir -p /var/www/landingpage/css && \
     mkdir -p /var/www/landingpage/js && \
     cp /var/www/vendor/twbs/bootstrap/dist/css/bootstrap.min.css /var/www/landingpage/css/bootstrap.min.css && \
-    cp /var/www/vendor/twbs/bootstrap/dist/js/bootstrap.min.js /var/www/landingpage/js/bootstrap.min.js && \
+    cp /var/www/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js /var/www/landingpage/js/bootstrap.bundle.min.js && \
     rm -r /var/www/vendor/twbs
 
 ENTRYPOINT ["/entrypoint.sh"]
