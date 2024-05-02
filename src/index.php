@@ -17,7 +17,7 @@ $translations = [];
 
 define('L_EXEC', true);
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 require_once './configManager.php';
 

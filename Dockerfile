@@ -21,7 +21,14 @@ COPY src /var/www/landingpage
 COPY conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf 
 COPY docker-entrypoint.sh /entrypoint.sh
 COPY conf/php-log.ini $PHP_INI_DIR/conf.d/
+COPY composer.* /var/www
 
-RUN cd /var/www/landingpage && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev
+RUN cd /var/www && \
+    COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev && \
+    mkdir -p /var/www/landingpage/css && \
+    mkdir -p /var/www/landingpage/js && \
+    cp /var/www/vendor/twbs/bootstrap/dist/css/bootstrap.min.css /var/www/landingpage/css/bootstrap.min.css && \
+    cp /var/www/vendor/twbs/bootstrap/dist/js/bootstrap.min.js /var/www/landingpage/js/bootstrap.min.js && \
+    rm -r /var/www/vendor/twbs
 
 ENTRYPOINT ["/entrypoint.sh"]

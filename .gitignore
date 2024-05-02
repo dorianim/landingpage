@@ -1,3 +1,5 @@
 /data
 /src/assets
-/src/vendor
+/src/js
+/src/css
+/vendor

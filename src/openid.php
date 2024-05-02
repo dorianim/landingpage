@@ -25,8 +25,7 @@ class LandingpageOpenid
         );
         $this->_client->addAuthParam(array('response_mode' => 'form_post'));
         $this->_client->setRedirectURL($this->_serverConfig['externalUrl'] . '/login/submit');
-        $this->_client->addScope('openid');
-        $this->_client->addScope('profile');
+        $this->_client->addScope(['openid', 'profile']);
     }
 
     private function _validateConfig()
