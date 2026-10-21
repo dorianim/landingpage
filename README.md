@@ -30,7 +30,7 @@ The application has been purpose-built for a fairly simple use-case. Due to limi
 - Let users change their email
 - Force users to change their email if they are still using the default email
 - Let users generate Jitsi links (can be restricted to certain LDAP groups)
-- Use OpenID-Connect user initial user authentication
+- Authenticate users through Traefik forward authentication
 
 # Installation
 
@@ -60,6 +60,27 @@ The official installation method is using Docker:
 5. Done! You can reach your landingpage on `localhost:5080`
 6. Adjust you `config.yaml` in `/opt/landingpage/data/config.yaml`
 7. [OPTIONAL] To setup ssl/https, please use a reverse proxy like nginx
+
+# Traefik Forward Authentication
+
+The landingpage can trust the identity headers from [simple-traefik-forwardauth](https://github.com/dorianim/simple-traefik-forwardauth). Keep a working LDAP configuration with `ldap.enable: true`, then enable forward authentication in `/data/config.yaml`:
+
+```yaml
+forwardAuth:
+  enable: true
+```
+
+Attach a Traefik forward-auth middleware to the landingpage router and forward only the username header returned by the provider:
+
+```yaml
+traefik.http.middlewares.landingpage-auth.forwardauth.address: http://simple-traefik-forwardauth:3759
+traefik.http.middlewares.landingpage-auth.forwardauth.authResponseHeaders: x-forwarded-username
+traefik.http.routers.landingpage.middlewares: landingpage-auth
+```
+
+The provider must share a Docker network with Traefik and use its documented `SECRET_KEY`, `OIDC_ISSUER_URL`, `OIDC_CLIENT_ID`, and `OIDC_CLIENT_SECRET` settings. Forward authentication requires LDAP and cannot be enabled by itself. The app uses `x-forwarded-username` to find exactly one account using the configured LDAP `userFilter` and `usernameField`; missing or unmatched accounts are denied. LDAP supplies the display name, email, first-password status, and `memberOf` groups. Use LDAP group names in `limitToGroups`; matching is case-insensitive.
+
+The app's local login and logout controls are disabled in forward-auth mode. LDAP-backed password and email management remain available. Route all app traffic through this middleware and avoid exposing the container directly, since the app trusts the forwarded username.
 
 # Updating
 

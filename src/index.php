@@ -3,7 +3,7 @@
 /**
  * This is the index file of the Itsblue ldandingpage
  * 
- * PHP Version 7.4
+ * PHP Version 8.5
  * 
  * @category Utilities
  * @package  Landingpage
@@ -38,7 +38,7 @@ else
   require_once './themes/' . $config['server']['theme'] . '.php';
 
 require_once './ldap.php';
-require_once './openid.php';
+require_once './forwardAuth.php';
 
 class ItsblueUserLandingPage
 {
@@ -46,18 +46,26 @@ class ItsblueUserLandingPage
   private $_path;
   private $_basepath;
   private $_loginEnabled;
+  private $_ldapEnabled;
+  private $_forwardAuthEnabled;
   private $_translations;
   private $_jitsiConfig;
   private $_serverConfig;
   private $_downloads;
 
   private $_ldap;
-  private $_openid;
+  private $_forwardAuth;
   private $_theme;
 
   public function __construct($config)
   {
-    $this->_loginEnabled = $config['ldap']['enable'];
+    $this->_ldapEnabled = $config['ldap']['enable'];
+    $this->_forwardAuthEnabled = $config['forwardAuth']['enable'];
+    if ($this->_forwardAuthEnabled && !$this->_ldapEnabled) {
+      throw new RuntimeException('forwardAuth.enable requires ldap.enable to be true.');
+    }
+
+    $this->_loginEnabled = $this->_ldapEnabled;
     $this->_translations = $config['translations'];
     $this->_jitsiConfig = $config['jitsi'];
     $this->_serverConfig = $config['server'];
@@ -67,7 +75,11 @@ class ItsblueUserLandingPage
     $this->_createCsrfTokenIfNotExists();
 
     $this->_ldap = new LandingpageLdapAuthenticator($config['ldap']);
-    $this->_openid = new LandingpageOpenid($config['openid'], $config['server']);
+    $this->_forwardAuth = new LandingpageForwardAuth();
+
+    if ($this->_forwardAuthEnabled) {
+      $this->_syncForwardAuthSession();
+    }
 
     $config['theme']['loginEnabled'] = $this->_loginEnabled;
 
@@ -85,10 +97,6 @@ class ItsblueUserLandingPage
     if ($this->_stringEndsWith($this->_path, "submit")) {
       if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $this->_redirect('/');
-      }
-
-      if ($this->_openid->enabled() && $this->_path === '/login/submit') {
-        $this->_handleOpenidLoginSubmit();
       }
 
       $this->_checkCsrfToken();
@@ -129,8 +137,6 @@ class ItsblueUserLandingPage
         }
 
         $this->_sendFile($fileId);
-      } else if ($this->_openid->enabled() && $this->_path === '/login') {
-        $this->_openid->login();
       }
 
       $this->_theme->printPage(str_replace("/", "", $this->_path));
@@ -165,18 +171,24 @@ class ItsblueUserLandingPage
   {
     $_SESSION['permissions'][''] = false;
     $_SESSION['permissions']['dl'] = true;
-    $_SESSION['permissions']['login'] = $this->_loginEnabled && !$this->_isUserAuthenticated();
-    $_SESSION['permissions']['logout'] = $this->_loginEnabled && $this->_isUserAuthenticated();
+    $_SESSION['permissions']['login'] = $this->_ldapEnabled && !$this->_forwardAuthEnabled && !$this->_isUserAuthenticated();
+    $_SESSION['permissions']['logout'] = $this->_loginEnabled && !$this->_forwardAuthEnabled && $this->_isUserAuthenticated();
     $_SESSION['permissions']['links'] =
       !$this->_loginEnabled
       || ($this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive'] || $_SESSION['auth']['firstEmailIsStillActive']))
       || (!$this->_isUserAuthenticated() && $this->_serverConfig['publicAccessToLinks']);
 
     $_SESSION['permissions']['changePassword'] =
-      $this->_isUserAuthenticated()
+      $this->_ldapEnabled
+      && isset($_SESSION['auth']['userDN'])
+      && $this->_isUserAuthenticated()
       && !(!$_SESSION['auth']['firstPasswordIsStillActive'] && $_SESSION['auth']['firstEmailIsStillActive']);
 
-    $_SESSION['permissions']['changeEmail'] = $this->_isUserAuthenticated() && !($_SESSION['auth']['firstPasswordIsStillActive']);
+    $_SESSION['permissions']['changeEmail'] =
+      $this->_ldapEnabled
+      && isset($_SESSION['auth']['userDN'])
+      && $this->_isUserAuthenticated()
+      && !($_SESSION['auth']['firstPasswordIsStillActive']);
 
     $_SESSION['permissions']['generateJitsiLink'] =
       ($this->_isUserAuthenticated() || !$this->_loginEnabled)
@@ -262,30 +274,6 @@ class ItsblueUserLandingPage
   // - Submit handlers -
   // -------------------
 
-  private function _handleOpenidLoginSubmit()
-  {
-    $result = $this->_openid->callback();
-    if (!$result["success"]) {
-      $_SESSION['lastResult'] = 'loginFailed';
-      $this->_redirect('/login');
-    }
-
-    $username = $result["userinfo"]->preferred_username;
-    $user = $this->_ldap->findUser($username);
-
-    if (!$user['success']) {
-      $_SESSION['lastResult'] = 'loginFailed';
-      $this->_redirect('/login');
-    }
-
-    $userEntry = $user['userEntry'];
-
-    $firstPasswordIsStillActive = $this->_ldap->checkIfFirstPasswordIsStillActive($userEntry);
-    $this->_ldap->initSession($userEntry, $firstPasswordIsStillActive);
-    $_SESSION['lastResult'] = "loginSuccess";
-    $this->_redirect('/');
-  }
-
   private function _handleLoginSubmit()
   {
     if ($this->_ldap->authenticateUser($_POST['username'], $_POST['password'])) {
@@ -301,9 +289,6 @@ class ItsblueUserLandingPage
   private function _handleLogoutSubmit()
   {
     $this->_ldap->logoutUser();
-
-    if ($this->_openid->enabled())
-      $this->_openid->logout();
 
     if (!$this->_serverConfig['publicAccessToLinks'])
       $this->_redirect('/login');
@@ -432,7 +417,7 @@ class ItsblueUserLandingPage
         return true;
       } else {
         foreach ($groups as $group) {
-          if (array_key_exists($group, $_SESSION['auth']['groups']))
+          if (array_key_exists(strtolower($group), $_SESSION['auth']['groups']))
             return true;
         }
         return false;
@@ -441,9 +426,40 @@ class ItsblueUserLandingPage
       if (!isset($groups)) {
         return true;
       } else {
-        return array_key_exists($groups, $_SESSION['auth']['groups']);
+        return array_key_exists(strtolower($groups), $_SESSION['auth']['groups']);
       }
     }
+  }
+
+  private function _syncForwardAuthSession()
+  {
+    $username = $this->_forwardAuth->usernameFromServer($_SERVER);
+    if ($username === null) {
+      unset($_SESSION['auth']);
+      http_response_code(401);
+      die('Missing trusted forward-auth identity headers.');
+    }
+
+    $currentAuth = $_SESSION['auth'] ?? [];
+    $sameUser =
+      isset($currentAuth['provider'], $currentAuth['userName'])
+      && $currentAuth['provider'] === 'forwardAuth'
+      && strcasecmp($currentAuth['userName'], $username) === 0;
+
+    if (!$sameUser || !isset($currentAuth['userDN'])) {
+      $user = $this->_ldap->findUser($username);
+      if (!$user['success']) {
+        unset($_SESSION['auth']);
+        http_response_code(403);
+        die('The authenticated account is not available in LDAP.');
+      }
+
+      $userEntry = $user['userEntry'];
+      $firstPasswordIsStillActive = $this->_ldap->checkIfFirstPasswordIsStillActive($userEntry);
+      $this->_ldap->initSession($userEntry, $firstPasswordIsStillActive);
+    }
+
+    $_SESSION['auth']['provider'] = 'forwardAuth';
   }
 
   private function _stringStartsWith($haystack, $needle)

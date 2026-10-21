@@ -64,18 +64,11 @@ ldap:
   # is used to force them to change it
   firstEmailPattern: /^$/
 
-openid:
-  # Openid can be used for initial authentication.
-  # However, it only fully works in combination with LDAP, because it cannot be used
-  # to check if the users firstPassword is still set or update the users credentials.
-  # the callback url is: /login/submit
-  # the logout callback url is: /
+forwardAuth:
+  # Requires ldap.enable: true. The app reads only x-forwarded-username from the proxy;
+  # profile fields and groups are loaded from the matching LDAP account.
+  # Keep the landingpage reachable only through the configured Traefik middleware.
   enable: false
-  clientId: landingpage
-  clientSecret: someSecretSectet
-
-  # has to have an endpoint `/.well-known/openid-configuration`
-  issuer: https://some-issuer
 
 jitsi:
   enable: false

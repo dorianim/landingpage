@@ -1,4 +1,4 @@
-FROM php:7.4.3-apache
+FROM php:8.5.12-apache-trixie
 
 RUN apt-get update && \
     apt-get install -y \

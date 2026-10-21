@@ -139,9 +139,9 @@ class LandingpageTheme
 
     private function _printPasswordAndEmailChangeNotification()
     {
-      if ($_SESSION['auth']['firstPasswordIsStillActive'])
+      if (!empty($_SESSION['auth']['firstPasswordIsStillActive']))
         $this->_printAlert($this->_trId('notifications.changeFirstPassword'), "warning", false);
-      else if ($_SESSION['auth']['firstEmailIsStillActive'])
+      else if (!empty($_SESSION['auth']['firstEmailIsStillActive']))
         $this->_printAlert($this->_trId('notifications.changeFirstEmail'), "warning", false);
     }
 
@@ -287,7 +287,7 @@ class LandingpageTheme
           <div class="col-lg-6 col-md-8 mx-auto">
             <img class="mb-4" src="<?= $this->_globalConfig['mainIcon'] ?>" alt="" height="150">
             <?php if ($this->_globalConfig['loginEnabled']) : ?>
-              <h1 class="fw-light"><?= $this->_trId("home.hello"); ?> <?= $_SESSION['auth']['displayName'] ?></h1>
+              <h1 class="fw-light"><?= $this->_trId("home.hello"); ?> <?= htmlspecialchars((string)$_SESSION['auth']['displayName'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h1>
             <?php endif; ?>
             <p class="lead text-muted"><?= $this->_trId("home.welcomeMessage"); ?></p>
           </div>
@@ -313,12 +313,16 @@ class LandingpageTheme
                   <li class="nav-item" role="presentation">
                     <a class="nav-link <?= $this->_getTabClasses('generateJitsiLink', $page); ?>" href="generateJitsiLink"><?= $this->_trId("home.menu.generateJitsiLinkLabel"); ?></a>
                   </li>
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link <?= $this->_getTabClasses('changePassword', $page); ?>" href="changePassword"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
-                  </li>
-                  <li class="nav-item pe-lg-3" role="presentation">
-                    <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" href="changeEmail"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
-                  </li>
+                  <?php if ($_SESSION['permissions']['changePassword']) : ?>
+                    <li class="nav-item" role="presentation">
+                      <a class="nav-link <?= $this->_getTabClasses('changePassword', $page); ?>" href="changePassword"><?= $this->_trId("home.menu.changePasswordLabel"); ?></a>
+                    </li>
+                  <?php endif; ?>
+                  <?php if ($_SESSION['permissions']['changeEmail']) : ?>
+                    <li class="nav-item pe-lg-3" role="presentation">
+                      <a class="nav-link <?= $this->_getTabClasses('changeEmail', $page); ?>" href="changeEmail"><?= $this->_trId("home.menu.changeEmailLabel"); ?></a>
+                    </li>
+                  <?php endif; ?>
                   <li class="nav-item mt-2 mt-lg-0" role="presentation">
                     <?php if ($_SESSION['permissions']['logout']) : ?>
                       <form action="logout/submit" method="post">
@@ -511,7 +515,7 @@ class LandingpageTheme
     </p>
     <?php if (!$_SESSION['auth']['firstEmailIsStillActive']) : ?>
       <p>
-        <?= $this->_trId("changeEmail.currentEmailLabel"); ?> <strong><?= $_SESSION['auth']['email']; ?></strong>
+        <?= $this->_trId("changeEmail.currentEmailLabel"); ?> <strong><?= htmlspecialchars((string)$_SESSION['auth']['email'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); ?></strong>
       </p>
     <?php endif; ?>
     <form action="changeEmail/submit" method="post">

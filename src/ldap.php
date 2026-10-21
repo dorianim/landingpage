@@ -84,7 +84,7 @@ class LandingpageLdapAuthenticator
     $filter = "(&(" . $this->_ldapConfig['userFilter'] . ")(" . $this->_ldapConfig['usernameField'] . "=$username))";
     $search = @ldap_search($this->_ldapDs, $this->_ldapConfig['basedn'], $filter);
 
-    if (!$search || !ldap_count_entries($this->_ldapDs, $search) === 1)
+    if (!$search || ldap_count_entries($this->_ldapDs, $search) !== 1)
       return array(
         'success' => $this->_result(false, 'ldapSearchFailed')
       );
@@ -100,8 +100,9 @@ class LandingpageLdapAuthenticator
 
   public function checkIfFirstPasswordIsStillActive($userEntry)
   {
-    $firstPassword = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['firstPasswordField'])[0];
-    if (!isset($firstPassword))
+    $firstPasswordValues = ldap_get_values($this->_ldapDs, $userEntry, $this->_ldapConfig['firstPasswordField']);
+    $firstPassword = $firstPasswordValues[0] ?? null;
+    if ($firstPassword === null || $firstPassword === '')
       return false;
 
     return ldap_bind($this->_ldapDs, ldap_get_dn($this->_ldapDs, $userEntry), $firstPassword);
@@ -119,7 +120,7 @@ class LandingpageLdapAuthenticator
 
     // calculate ldap groups (got this from: https://github.com/opnsense/core/blob/9679471d906631fe5f55efdda5b1174734278622/src/opnsense/mvc/app/library/OPNsense/Auth/LDAP.php#L477)
     $ldap_groups = array();
-    foreach (ldap_get_values($this->_ldapDs, $userEntry, "memberof") as $member) {
+    foreach (ldap_get_values($this->_ldapDs, $userEntry, "memberof") ?: [] as $member) {
       if (stripos($member, "cn=") === 0) {
         $ldap_groups[strtolower(explode(",", substr($member, 3))[0])] = $member;
       }

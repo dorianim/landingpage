@@ -4,6 +4,8 @@ defined('L_EXEC') or die();
 
 class LandingpageConfigManager {
 
+    private $_configFilePath;
+
     public function __construct($configFilePath) {
         $this->_configFilePath = $configFilePath;
     }
@@ -111,6 +113,13 @@ class LandingpageConfigManager {
         $jitsiconfig['limitToGroups'] = [];
 
         $config['jitsi'] = $jitsiconfig;
+
+        // Trusted reverse-proxy username; requires LDAP for account and profile data
+        $forwardAuthConfig['enable'] = false;
+        $config['forwardAuth'] = $forwardAuthConfig;
+
+        // Downloads
+        $config['downloads'] = [];
 
         // Links
         $config['links'] = [];
